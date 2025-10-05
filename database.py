@@ -32,9 +32,18 @@ class Database:
                 qr_code_path TEXT,
                 registration_date TEXT,
                 zoom_attended INTEGER DEFAULT 0,
-                participation_form TEXT
+                participation_form TEXT,
+                language TEXT DEFAULT 'ru'
             )
         """)
+        
+        # Add language column if it doesn't exist (for existing databases)
+        try:
+            cursor.execute("ALTER TABLE participants ADD COLUMN language TEXT DEFAULT 'ru'")
+            conn.commit()
+        except sqlite3.OperationalError:
+            # Column already exists
+            pass
         
         conn.commit()
         conn.close()
@@ -151,3 +160,25 @@ class Database:
         conn.close()
         
         return [dict(row) for row in rows]
+    
+    def set_user_language(self, telegram_id: int, language: str):
+        """Установить язык пользователя"""
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        
+        cursor.execute(
+            "UPDATE participants SET language = ? WHERE telegram_id = ?",
+            (language, telegram_id)
+        )
+        
+        conn.commit()
+        conn.close()
+    
+    def get_user_language(self, telegram_id: int) -> str:
+        """Получить язык пользователя (по умолчанию 'ru')"""
+        user = self.get_user(telegram_id)
+        if user and 'language' in user:
+            return user['language'] or 'ru'
+        return 'ru'
+
+
