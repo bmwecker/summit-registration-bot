@@ -23,6 +23,7 @@ from telegram.ext import (
 
 from database import Database
 from languages import get_text, get_weekday, LANGUAGE_NAMES
+import bot_admin_handlers as admin_handlers
 
 # Загрузка переменных окружения
 load_dotenv()
@@ -537,8 +538,23 @@ def main():
     application.add_handler(CallbackQueryHandler(change_language_menu, pattern="^change_language_menu$"))
     application.add_handler(CallbackQueryHandler(set_language_from_menu, pattern="^setlang_"))
     
+    # Админские команды
+    application.add_handler(CommandHandler("admin", admin_handlers.admin_stats))
+    application.add_handler(CommandHandler("sendlink", admin_handlers.admin_sendlink_command))
+    application.add_handler(CommandHandler("info", admin_handlers.admin_info_command))
+    application.add_handler(CommandHandler("attended", admin_handlers.admin_mark_attended_command))
+    
+    # Админские callback'и
+    application.add_handler(CallbackQueryHandler(admin_handlers.admin_dates_menu, pattern="^admin_dates$"))
+    application.add_handler(CallbackQueryHandler(admin_handlers.admin_date_details, pattern="^admin_date_"))
+    application.add_handler(CallbackQueryHandler(admin_handlers.admin_recent, pattern="^admin_recent$"))
+    application.add_handler(CallbackQueryHandler(admin_handlers.admin_export, pattern="^admin_export$"))
+    application.add_handler(CallbackQueryHandler(admin_handlers.admin_back, pattern="^admin_back$"))
+    application.add_handler(CallbackQueryHandler(admin_handlers.admin_send_zoom_link, pattern="^admin_send_"))
+    
     # Запускаем бота
     logger.info("Многоязычный бот запущен! Поддерживаются: ru, en, he")
+    logger.info("Админские команды доступны: /admin /sendlink /info /attended")
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
