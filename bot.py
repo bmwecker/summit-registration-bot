@@ -163,18 +163,43 @@ async def language_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
         await show_main_menu_new_message(update, context, language)
         return SHOWING_MENU
     
-    # Приветствие от Шломо + выбор даты
+    # Приветствие от Шломо
     await query.edit_message_text(get_text(language, 'greeting'))
     
-    # Показываем кнопки с датами
-    await show_date_selection(update, context, language)
+    # Показываем кнопки с датами (новое сообщение)
+    try:
+        await show_date_selection(update, context, language, edit=False)
+    except Exception as e:
+        logger.error(f"Error showing date selection: {e}")
+        # Если ошибка - пробуем через query
+        dates = get_next_three_days()
+        keyboard = []
+        for i, date in enumerate(dates):
+            date_str = date.strftime('%Y-%m-%d')
+            button_text = format_date_button(date, language, i)
+            count = db.get_participants_count_by_date(date_str)
+            if count >= MAX_PARTICIPANTS_PER_DATE:
+                button_text += " ❌ FULL"
+            else:
+                button_text += f" ({count}/{MAX_PARTICIPANTS_PER_DATE})"
+            keyboard.append([InlineKeyboardButton(button_text, callback_data=f'date_{date_str}')])
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await context.bot.send_message(
+            chat_id=query.message.chat_id,
+            text=get_text(language, 'choose_date'),
+            reply_markup=reply_markup
+        )
     
     return CHOOSING_DATE
 
 
 async def show_date_selection(update: Update, context: ContextTypes.DEFAULT_TYPE, language: str, edit: bool = False):
     """Показать кнопки выбора даты"""
+    logger.info(f"show_date_selection called with language={language}, edit={edit}")
+    
     dates = get_next_three_days()
+    logger.info(f"Got {len(dates)} dates: {[d.strftime('%Y-%m-%d') for d in dates]}")
+    
     keyboard = []
     
     for i, date in enumerate(dates):
@@ -183,6 +208,7 @@ async def show_date_selection(update: Update, context: ContextTypes.DEFAULT_TYPE
         
         # Проверяем количество участников на эту дату
         count = db.get_participants_count_by_date(date_str)
+        logger.info(f"Date {date_str}: {count} participants")
         
         if count >= MAX_PARTICIPANTS_PER_DATE:
             button_text += " ❌ FULL"
@@ -194,14 +220,20 @@ async def show_date_selection(update: Update, context: ContextTypes.DEFAULT_TYPE
     reply_markup = InlineKeyboardMarkup(keyboard)
     text = get_text(language, 'choose_date')
     
+    logger.info(f"Sending date selection with {len(keyboard)} buttons")
+    
     if edit and update.callback_query:
         await update.callback_query.edit_message_text(text, reply_markup=reply_markup)
+        logger.info("Date selection sent via edit_message_text")
     else:
+        chat_id = update.effective_chat.id
+        logger.info(f"Sending date selection to chat_id={chat_id}")
         await context.bot.send_message(
-            chat_id=update.effective_chat.id,
+            chat_id=chat_id,
             text=text,
             reply_markup=reply_markup
         )
+        logger.info("Date selection sent via send_message")
 
 
 async def date_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
