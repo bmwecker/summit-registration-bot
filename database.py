@@ -86,22 +86,22 @@ class Database:
     
     def generate_participant_id(self) -> int:
         """Генерация уникального ID участника (начиная с 12000)"""
-        conn = self.get_connection()
-        
         if self.use_postgres:
+            # Для MAX используем обычный курсор без dict_row
+            import psycopg
+            conn = psycopg.connect(DATABASE_URL)
             cursor = conn.cursor()
             cursor.execute("SELECT MAX(participant_id) FROM participants")
+            result = cursor.fetchone()
+            conn.close()
+            last_id = result[0] if result and result[0] is not None else 11999
         else:
+            conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
             cursor.execute("SELECT MAX(participant_id) FROM participants")
-        
-        result = cursor.fetchone()
-        conn.close()
-        
-        if self.use_postgres:
-            last_id = result[0] if result[0] is not None else 11999
-        else:
-            last_id = result[0] if result[0] is not None else 11999
+            result = cursor.fetchone()
+            conn.close()
+            last_id = result[0] if result and result[0] is not None else 11999
         
         return last_id + 1
     
@@ -111,22 +111,26 @@ class Database:
             code = str(random.randint(100000, 999999))
             
             # Проверяем уникальность
-            conn = self.get_connection()
             if self.use_postgres:
+                # Для COUNT используем обычный курсор без dict_row
+                import psycopg
+                conn = psycopg.connect(DATABASE_URL)
                 cursor = conn.cursor()
                 cursor.execute(
                     "SELECT COUNT(*) FROM participants WHERE activation_code = %s",
                     (code,)
                 )
+                count = cursor.fetchone()[0]
+                conn.close()
             else:
+                conn = sqlite3.connect(self.db_path)
                 cursor = conn.cursor()
                 cursor.execute(
                     "SELECT COUNT(*) FROM participants WHERE activation_code = ?",
                     (code,)
                 )
-            
-            count = cursor.fetchone()[0]
-            conn.close()
+                count = cursor.fetchone()[0]
+                conn.close()
             
             if count == 0:
                 return code
@@ -216,23 +220,28 @@ class Database:
     
     def get_participants_count_by_date(self, zoom_date: str) -> int:
         """Получить количество участников на дату"""
-        conn = self.get_connection()
-        cursor = conn.cursor()
-        
         if self.use_postgres:
+            # Для COUNT используем обычный курсор без dict_row
+            import psycopg
+            conn = psycopg.connect(DATABASE_URL)
+            cursor = conn.cursor()
             cursor.execute(
                 "SELECT COUNT(*) FROM participants WHERE zoom_date = %s",
                 (zoom_date,)
             )
+            count = cursor.fetchone()[0]
+            conn.close()
+            return count
         else:
+            conn = sqlite3.connect(self.db_path)
+            cursor = conn.cursor()
             cursor.execute(
                 "SELECT COUNT(*) FROM participants WHERE zoom_date = ?",
                 (zoom_date,)
             )
-        
-        count = cursor.fetchone()[0]
-        conn.close()
-        return count
+            count = cursor.fetchone()[0]
+            conn.close()
+            return count
     
     def set_user_language(self, telegram_id: int, language: str):
         """Установить язык пользователя"""
