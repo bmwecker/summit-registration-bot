@@ -14,9 +14,9 @@ DATABASE_URL = os.getenv("DATABASE_URL")  # PostgreSQL на Render
 USE_POSTGRES = DATABASE_URL is not None
 
 if USE_POSTGRES:
-    import psycopg2
-    from psycopg2.extras import RealDictCursor
-    # Render использует postgres://, но psycopg2 требует postgresql://
+    import psycopg
+    from psycopg.rows import dict_row
+    # Render использует postgres://, но psycopg требует postgresql://
     if DATABASE_URL.startswith("postgres://"):
         DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
@@ -32,7 +32,7 @@ class Database:
     def get_connection(self):
         """Получить подключение к БД"""
         if self.use_postgres:
-            return psycopg2.connect(DATABASE_URL)
+            return psycopg.connect(DATABASE_URL, row_factory=dict_row)
         else:
             return sqlite3.connect(self.db_path)
     
@@ -136,7 +136,7 @@ class Database:
         conn = self.get_connection()
         
         if self.use_postgres:
-            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            cursor = conn.cursor()
             cursor.execute(
                 "SELECT * FROM participants WHERE telegram_id = %s",
                 (telegram_id,)
@@ -302,7 +302,7 @@ class Database:
         conn = self.get_connection()
         
         if self.use_postgres:
-            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            cursor = conn.cursor()
             cursor.execute("SELECT * FROM participants ORDER BY registration_date DESC")
         else:
             conn.row_factory = sqlite3.Row
@@ -319,7 +319,7 @@ class Database:
         conn = self.get_connection()
         
         if self.use_postgres:
-            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            cursor = conn.cursor()
             cursor.execute(
                 "SELECT * FROM participants WHERE zoom_date = %s ORDER BY registration_date",
                 (zoom_date,)
@@ -387,7 +387,7 @@ class Database:
             params.append(zoom_date)
         
         if self.use_postgres:
-            cursor = conn.cursor(cursor_factory=RealDictCursor)
+            cursor = conn.cursor()
             cursor.execute(query, tuple(params))
         else:
             conn.row_factory = sqlite3.Row
