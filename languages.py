@@ -80,7 +80,7 @@ TEXTS = {
 
 **A. Вход с компьютера (Windows или Mac)**
 
-1. Откройте письмо/сообщение со ссылкой и кликните по ссылке (начинается с zoom.us/j/... или us02web.zoom.us/...).
+1. Откройте письмо/сообщение со ссылкой и кликните по ссылке.
 
 2. Браузер откроет страницу Zoom. Если Zoom не установлен, браузер предложит скачать приложение — нажмите Download & Run / Launch Meeting → начнётся скачивание установщика.
 
@@ -222,7 +222,7 @@ TEXTS = {
 
 **A. Joining from computer (Windows or Mac)**
 
-1. Open the email/message with the link and click on it (starts with zoom.us/j/...).
+1. Open the email/message with the link and click on it.
 
 2. Browser will open Zoom page. If Zoom is not installed, browser will suggest downloading — click Download & Run / Launch Meeting.
 
@@ -348,7 +348,7 @@ TEXTS = {
 
 **א. כניסה ממחשב (Windows או Mac)**
 
-1. פתח את האימייל/הודעה עם הקישור ולחץ עליו (מתחיל ב-zoom.us/j/...).
+1. פתח את האימייל/הודעה עם הקישור ולחץ עליו.
 
 2. הדפדפן יפתח את עמוד Zoom. אם Zoom לא מותקן, הדפדפן יציע להוריד — לחץ Download & Run / Launch Meeting.
 
