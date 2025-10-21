@@ -221,3 +221,4 @@ https://dashboard.render.com
 ---
 
 **Удачи с Aleph Bet Foresight Summit! 🕊️**
+

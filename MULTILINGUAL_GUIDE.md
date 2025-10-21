@@ -381,3 +381,4 @@ application.add_handler(CommandHandler("admin", admin_stats))
 - Логика бота не зависит от языка
 
 **Удачи с Aleph Bet Foresight Summit! 🕊️**
+

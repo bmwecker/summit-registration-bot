@@ -239,3 +239,5 @@ python --version
 - [Telegram Bot API](https://core.telegram.org/bots/api)
 - [SQLite Tutorial](https://www.sqlitetutorial.net/)
 - [Git Cheat Sheet](https://education.github.com/git-cheat-sheet-education.pdf)
+
+

@@ -337,3 +337,4 @@ var botUrl = 'https://t.me/AlephBetForesightSummitbot?start=he';
 ---
 
 **Удачи с саммитом! 🌍**
+
