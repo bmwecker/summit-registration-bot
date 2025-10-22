@@ -53,6 +53,7 @@ class Database:
                     telegram_id BIGINT UNIQUE NOT NULL,
                     username TEXT,
                     first_name TEXT,
+                    email TEXT,
                     participant_type TEXT,
                     participant_id INTEGER UNIQUE,
                     activation_code VARCHAR(6) UNIQUE,
@@ -63,6 +64,16 @@ class Database:
                     activation_date TIMESTAMP
                 )
             """)
+            
+            # Добавляем поле email если его нет (миграция)
+            try:
+                cursor.execute("""
+                    ALTER TABLE participants 
+                    ADD COLUMN IF NOT EXISTS email TEXT
+                """)
+                conn.commit()
+            except Exception:
+                pass  # Поле уже существует
         else:
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS participants (
@@ -70,6 +81,7 @@ class Database:
                     telegram_id INTEGER UNIQUE NOT NULL,
                     username TEXT,
                     first_name TEXT,
+                    email TEXT,
                     participant_type TEXT,
                     participant_id INTEGER UNIQUE,
                     activation_code TEXT UNIQUE,
@@ -80,6 +92,13 @@ class Database:
                     activation_date TEXT
                 )
             """)
+            
+            # Добавляем поле email если его нет (миграция)
+            try:
+                cursor.execute("ALTER TABLE participants ADD COLUMN email TEXT")
+                conn.commit()
+            except Exception:
+                pass  # Поле уже существует
         
         conn.commit()
         conn.close()
@@ -257,6 +276,25 @@ class Database:
             cursor.execute(
                 "UPDATE participants SET language = ? WHERE telegram_id = ?",
                 (language, telegram_id)
+            )
+        
+        conn.commit()
+        conn.close()
+    
+    def set_user_email(self, telegram_id: int, email: str):
+        """Установить email пользователя"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        if self.use_postgres:
+            cursor.execute(
+                "UPDATE participants SET email = %s WHERE telegram_id = %s",
+                (email, telegram_id)
+            )
+        else:
+            cursor.execute(
+                "UPDATE participants SET email = ? WHERE telegram_id = ?",
+                (email, telegram_id)
             )
         
         conn.commit()
