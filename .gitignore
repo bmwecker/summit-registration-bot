@@ -28,3 +28,6 @@ qr_codes/
 # OS
 .DS_Store
 Thumbs.db
+
+# Other repos
+summit-registration-bot-en/
