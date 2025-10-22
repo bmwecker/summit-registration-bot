@@ -1,1 +1,3 @@
-worker: python bot.py
+worker: python run_both_bots.py
+
+

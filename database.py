@@ -300,6 +300,33 @@ class Database:
         conn.commit()
         conn.close()
     
+    def get_user_by_email(self, email: str) -> Optional[Dict]:
+        """Получить пользователя по email"""
+        conn = self.get_connection()
+        
+        if self.use_postgres:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM participants WHERE email = %s",
+                (email,)
+            )
+            user = cursor.fetchone()
+        else:
+            cursor = conn.cursor()
+            cursor.execute(
+                "SELECT * FROM participants WHERE email = ?",
+                (email,)
+            )
+            row = cursor.fetchone()
+            if row:
+                columns = [description[0] for description in cursor.description]
+                user = dict(zip(columns, row))
+            else:
+                user = None
+        
+        conn.close()
+        return user
+    
     def get_user_language(self, telegram_id: int) -> str:
         """Получить язык пользователя (по умолчанию 'ru')"""
         user = self.get_user(telegram_id)
