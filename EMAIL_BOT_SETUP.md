@@ -29,15 +29,15 @@ Email-бот **полностью дублирует функционал Telegr
 # SMTP (отправка писем)
 SMTP_HOST=smtp.mail.ru
 SMTP_PORT=587
-SMTP_USER=support@alef-bet.tech
+SMTP_USER=summit@alef-bet.tech
 SMTP_PASSWORD=Eshiva11!
-FROM_EMAIL=support@alef-bet.tech
+FROM_EMAIL=summit@alef-bet.tech
 FROM_NAME=Aleph Bet Foresight Summit
 
 # IMAP (получение писем)
 IMAP_HOST=imap.mail.ru
 IMAP_PORT=993
-IMAP_USER=support@alef-bet.tech
+IMAP_USER=summit@alef-bet.tech
 IMAP_PASSWORD=Eshiva11!
 ```
 
@@ -70,7 +70,7 @@ Render.yaml обновится автоматически после push.
   </a>
   
   <!-- Кнопка Email -->
-  <a href="mailto:support@alef-bet.tech?subject=Регистрация&body=СТАРТ" 
+  <a href="mailto:summit@alef-bet.tech?subject=Регистрация&body=СТАРТ" 
      class="btn btn-email">
     📧 Зарегистрироваться через Email
   </a>
@@ -115,7 +115,7 @@ document.getElementById('registration-form').addEventListener('submit', function
   } else {
     const email = document.getElementById('user-email').value;
     if (email) {
-      window.location.href = `mailto:support@alef-bet.tech?subject=Регистрация&body=СТАРТ`;
+      window.location.href = `mailto:summit@alef-bet.tech?subject=Регистрация&body=СТАРТ`;
     } else {
       alert('Пожалуйста, введите ваш email');
     }
@@ -135,7 +135,7 @@ document.getElementById('registration-form').addEventListener('submit', function
 
 2. **Кнопка 2 (Email):**
    - Текст: "📧 Email-регистрация"
-   - Ссылка: `mailto:support@alef-bet.tech?subject=Регистрация&body=СТАРТ`
+   - Ссылка: `mailto:summit@alef-bet.tech?subject=Регистрация&body=СТАРТ`
    - Открыть: по умолчанию
 
 ---
@@ -144,7 +144,7 @@ document.getElementById('registration-form').addEventListener('submit', function
 
 ### 1. Пользователь отправляет письмо
 
-**Кому:** support@alef-bet.tech  
+**Кому:** summit@alef-bet.tech  
 **Тема:** Регистрация  
 **Текст:** СТАРТ
 
@@ -252,7 +252,7 @@ if __name__ == '__main__':
 
 ## 🧪 Тестирование
 
-### 1. Отправьте письмо на support@alef-bet.tech
+### 1. Отправьте письмо на summit@alef-bet.tech
 
 ```
 Тема: Тест
