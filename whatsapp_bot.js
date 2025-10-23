@@ -228,24 +228,34 @@ function initWhatsAppBot(qrCallback, readyCallback) {
             const phoneNumber = msg.from;
             const body = msg.body.trim();
             
-            console.log(`[WHATSAPP] Message from ${phoneNumber}: ${body}`);
-            
             const telegramId = whatsappToTelegramId(phoneNumber);
             let user = await getUser(telegramId);
             let state = userStates.get(phoneNumber) || { step: 'start' };
+            const bodyLower = body.toLowerCase().trim();
             
-            const bodyLower = body.toLowerCase();
+            console.log(`[WHATSAPP] Message from ${phoneNumber}: ${body}`);
+            console.log(`[WHATSAPP] User exists: ${!!user}, State: ${state.step}, Command: ${bodyLower}`);
             
-            // Команда START
-            if (bodyLower === 'start' || bodyLower === 'старт' || !user) {
+            // Команда START - только явная команда
+            if (bodyLower === 'start' || bodyLower === 'старт') {
                 const texts = TEXTS.ru;
                 await msg.reply(texts.welcome);
                 userStates.set(phoneNumber, { step: 'choosing_language' });
+                console.log(`[WHATSAPP] START command, set state to choosing_language`);
                 return;
             }
             
-            // Выбор языка
-            if (state.step === 'choosing_language' || bodyLower === 'ru' || bodyLower === 'en' || bodyLower === 'he' || ['1', '2', '3'].includes(body)) {
+            // Если пользователя нет и это НЕ START - предлагаем начать
+            if (!user && state.step === 'start') {
+                const texts = TEXTS.ru;
+                await msg.reply(texts.welcome);
+                userStates.set(phoneNumber, { step: 'choosing_language' });
+                console.log(`[WHATSAPP] New user, showing welcome`);
+                return;
+            }
+            
+            // Выбор языка - ТОЛЬКО если state.step === 'choosing_language'
+            if (state.step === 'choosing_language') {
                 let language = null;
                 
                 if (body === '1' || bodyLower === 'ru' || bodyLower === 'russian' || bodyLower === 'русский') {
@@ -256,21 +266,32 @@ function initWhatsAppBot(qrCallback, readyCallback) {
                     language = 'he';
                 }
                 
-                if (language && state.step === 'choosing_language') {
+                if (language) {
+                    console.log(`[WHATSAPP] Language selected: ${language}`);
+                    
                     if (!user) {
                         // Создаем нового пользователя
                         const contact = await msg.getContact();
                         const firstName = contact.pushname || contact.name || phoneNumber;
+                        console.log(`[WHATSAPP] Creating new user: ${firstName}`);
                         const result = await createUser(telegramId, phoneNumber, firstName, language, phoneNumber);
                         user = await getUser(telegramId);
+                        console.log(`[WHATSAPP] User created with ID: ${user?.participant_id}`);
                     } else {
                         await updateLanguage(telegramId, language);
                         user.language = language;
+                        console.log(`[WHATSAPP] Language updated for existing user`);
                     }
                     
                     const datesMessage = await sendDatesList(phoneNumber, language);
                     await msg.reply(datesMessage);
                     userStates.set(phoneNumber, { step: 'choosing_date', language });
+                    console.log(`[WHATSAPP] Dates sent, state set to choosing_date`);
+                    return;
+                } else {
+                    // Не распознали язык - показываем help
+                    const texts = TEXTS.ru;
+                    await msg.reply(texts.help);
                     return;
                 }
             }
