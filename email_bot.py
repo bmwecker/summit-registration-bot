@@ -89,28 +89,39 @@ class EmailBot:
     
     def parse_command(self, text: str) -> Optional[str]:
         """Распознать команду в тексте письма"""
-        text = text.lower().strip()
+        # Очищаем текст от лишних символов
+        original_text = text.strip()
+        # Убираем маркеры списков и скобки
+        text = re.sub(r'^[•\-\*]\s+', '', original_text)
+        text = re.sub(r'\(.*?\)', '', text)
+        text = text.strip()
         
-        # Команда START (только на английском!)
-        if text == 'start' or 'start' in text.split():
+        # Проверяем иврит ДО lower() (чтобы не потерять символы)
+        if 'עברית' in original_text or 'עברית' in text:
+            return 'lang_he'
+        
+        text_lower = text.lower()
+        
+        # Команда START
+        if 'start' in text_lower:
             return 'start'
         
         # Выбор языка
-        if text in ['ru', 'russian', 'русский']:
+        if text_lower in ['ru', 'russian', 'русский'] or 'ru' in text_lower or 'russian' in text_lower:
             return 'lang_ru'
-        elif text in ['en', 'english', 'английский']:
+        elif text_lower in ['en', 'english', 'английский'] or 'en' in text_lower or 'english' in text_lower:
             return 'lang_en'
-        elif text in ['he', 'hebrew', 'иврит', 'עברית']:
+        elif text_lower in ['he', 'hebrew', 'иврит'] or 'he' in text_lower or 'hebrew' in text_lower:
             return 'lang_he'
         
         # Выбор даты (просто цифра)
-        if text in ['1', '2', '3']:
-            return f'date_{text}'
+        if text_lower in ['1', '2', '3']:
+            return f'date_{text_lower}'
         
         # Команды меню
-        if 'menu' in text or 'меню' in text or 'תפריט' in text:
+        if 'menu' in text_lower or 'меню' in text_lower or 'תפריט' in text:
             return 'menu'
-        if 'help' in text or 'помощь' in text or 'עזרה' in text:
+        if 'help' in text_lower or 'помощь' in text_lower or 'עזרה' in text:
             return 'help'
         
         return None
