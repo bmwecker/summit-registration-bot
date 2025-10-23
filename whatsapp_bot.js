@@ -14,40 +14,52 @@ const MAX_PARTICIPANTS_PER_DATE = 290;
 // Тексты ТОЧНО как в Telegram боте (из languages.py)
 const TEXTS = {
     ru: {
-        welcome: '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1 - Русский 🇷🇺\n2 - English 🇬🇧\n3 - עברית 🇮🇱',
+        welcome: '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1️⃣ Русский 🇷🇺\n2️⃣ English 🇬🇧\n3️⃣ עברית 🇮🇱',
         greeting: '✡️ Поздравляем — вы со своим народом!\nШалом! Меня зовут Шломо\n\n🎉 Вы приглашены на Zoom-встречу с оргкомитетом для знакомства с организаторами. Также на ней, вы сможете выбрать ту миссию, которая Вам по душе!\n\nКогда Вы хотите присоединиться к ZOOM встрече? Сегодня, завтра или послезавтра?',
         choose_date: '📅 Выберите удобную дату для Zoom-встречи:',
         date_full: '❌ К сожалению, на эту дату все места заняты. Пожалуйста, выберите другую дату.',
         meeting_confirmed: 'Отлично! Мы будем очень рады Вас видеть на нашей первой встрече!',
         id_and_code: '🎫 Ваш ID: №{participant_id}\n📲 Уникальный код для активации ID: {activation_code}\n\n⚠️ Для активации Вашего ID необходимо присутствовать на Zoom-встрече.\nПосле активации можно выбрать форму участия в саммите.',
-        main_menu: '📱 Главное меню:\n\n🎫 Ваш ID: №{participant_id}\n🔑 Ваш код активации: {activation_code}\n📅 Дата встречи: {zoom_date}\n\nВы можете написать:\n• MENU - показать это меню\n• HELP - показать справку',
-        help: '📖 Справка\n\nДоступные команды:\n• START - начать регистрацию\n• 1 / 2 / 3 - выбрать язык или дату\n• MENU - главное меню\n• HELP - эта справка',
+        main_menu: '📱 Главное меню:\n\n1️⃣ Напомнить номер ID\n2️⃣ Напомнить код активации\n3️⃣ Напомнить дату встречи\n4️⃣ Перенести встречу\n5️⃣ Как активировать ID?\n6️⃣ Изменить язык\n\n_Отправьте номер (1-6) или команду (MENU, HELP)_',
+        your_id: '📜 Ваш ID: №{participant_id}',
+        your_code: '🔑 Ваш код активации: {activation_code}',
+        your_date: '📅 Ваша дата Zoom-встречи: {zoom_date}',
+        how_to_activate: '❓ **Как активировать ID?**\n\nВ день ZOOM встречи, Вы получите ссылку на онлайн встречу, и точное время её проведения, на которой Вы должны будете отправить свой уникальный код в общий чат.\n\nПо окончанию ZOOM встречи Ваш ID будет активирован.',
+        help: '📖 Справка\n\nДоступные команды:\n• START - начать регистрацию\n• MENU - главное меню\n• 1-6 - выбрать пункт меню\n• HELP - эта справка',
         today: 'Сегодня',
         tomorrow: 'Завтра',
         day_after_tomorrow: 'Послезавтра'
     },
     en: {
-        welcome: '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1 - Русский 🇷🇺\n2 - English 🇬🇧\n3 - עברית 🇮🇱',
+        welcome: '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1️⃣ Русский 🇷🇺\n2️⃣ English 🇬🇧\n3️⃣ עברית 🇮🇱',
         greeting: '✡️ Congratulations — you are with your people!\nShalom! My name is Shlomo\n\n🎉 You are invited to a Zoom meeting with the organizing committee to meet the organizers. You will also be able to choose the mission that suits you!\n\nWhen would you like to join the ZOOM meeting? Today, tomorrow, or the day after tomorrow?',
         choose_date: '📅 Choose a convenient date for the Zoom meeting:',
         date_full: '❌ Unfortunately, all places for this date are taken. Please choose another date.',
         meeting_confirmed: 'Great! We will be very happy to see you at our first meeting!',
         id_and_code: '🎫 Your ID: №{participant_id}\n📲 Unique activation code: {activation_code}\n\n⚠️ You must attend the Zoom meeting to activate your ID.\nAfter activation, you can choose your form of participation in the summit.',
-        main_menu: '📱 Main menu:\n\n🎫 Your ID: №{participant_id}\n🔑 Your activation code: {activation_code}\n📅 Meeting date: {zoom_date}\n\nYou can write:\n• MENU - show this menu\n• HELP - show help',
-        help: '📖 Help\n\nAvailable commands:\n• START - start registration\n• 1 / 2 / 3 - choose language or date\n• MENU - main menu\n• HELP - this help',
+        main_menu: '📱 Main menu:\n\n1️⃣ Remind ID number\n2️⃣ Remind activation code\n3️⃣ Remind meeting date\n4️⃣ Reschedule meeting\n5️⃣ How to activate ID?\n6️⃣ Change language\n\n_Send number (1-6) or command (MENU, HELP)_',
+        your_id: '📜 Your ID: №{participant_id}',
+        your_code: '🔑 Your activation code: {activation_code}',
+        your_date: '📅 Your Zoom meeting date: {zoom_date}',
+        how_to_activate: '❓ **How to activate ID?**\n\nOn the day of the ZOOM meeting, you will receive a link to the online meeting and the exact time it will take place. You must send your unique code to the general chat.\n\nAfter the ZOOM meeting is over, your ID will be activated.',
+        help: '📖 Help\n\nAvailable commands:\n• START - start registration\n• MENU - main menu\n• 1-6 - select menu item\n• HELP - this help',
         today: 'Today',
         tomorrow: 'Tomorrow',
         day_after_tomorrow: 'Day after tomorrow'
     },
     he: {
-        welcome: '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1 - Русский 🇷🇺\n2 - English 🇬🇧\n3 - עברית 🇮🇱',
+        welcome: '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1️⃣ Русский 🇷🇺\n2️⃣ English 🇬🇧\n3️⃣ עברית 🇮🇱',
         greeting: '✡️ !ברוכים הבאים — אתם עם העם שלכם\n!שלום! שמי שלמה\n\n🎉 אתם מוזמנים לפגישת Zoom עם הוועדה המארגנת כדי להכיר את המארגנים. תוכלו גם לבחור את המשימה המתאימה לכם!\n\nמתי תרצו להצטרף לפגישת ZOOM? היום, מחר או מחרתיים?',
         choose_date: '📅 :בחרו תאריך נוח לפגישת Zoom',
         date_full: '❌ למרבה הצער, כל המקומות לתאריך זה תפוסים. אנא בחרו תאריך אחר.',
         meeting_confirmed: '!מצוין! נשמח מאוד לראותכם בפגישה הראשונה שלנו',
         id_and_code: '🎫 ה-ID שלך: №{participant_id}\n📲 :קוד הפעלה ייחודי {activation_code}\n\n⚠️ עליך להשתתף בפגישת Zoom כדי להפעיל את ה-ID שלך.\n.לאחר ההפעלה, תוכל לבחור את צורת ההשתתפות שלך בפסגה',
-        main_menu: '📱 :תפריט ראשי\n\n🎫 ה-ID שלך: №{participant_id}\n🔑 קוד ההפעלה שלך: {activation_code}\n📅 תאריך הפגישה: {zoom_date}\n\n:אתה יכול לכתוב\n• MENU - הצג תפריט זה\n• HELP - הצג עזרה',
-        help: '📖 עזרה\n\n:פקודות זמינות\n• START - התחל רישום\n• 1 / 2 / 3 - בחר שפה או תאריך\n• MENU - תפריט ראשי\n• HELP - עזרה זו',
+        main_menu: '📱 :תפריט ראשי\n\n1️⃣ הזכר מספר ID\n2️⃣ הזכר קוד הפעלה\n3️⃣ הזכר תאריך פגישה\n4️⃣ קבע מחדש פגישה\n5️⃣ ?כיצד להפעיל ID\n6️⃣ שנה שפה\n\n_(MENU ,HELP) שלח מספר (1-6) או פקודה_',
+        your_id: '📜 ה-ID שלך: №{participant_id}',
+        your_code: '🔑 קוד ההפעלה שלך: {activation_code}',
+        your_date: '📅 תאריך פגישת Zoom שלך: {zoom_date}',
+        how_to_activate: '❓ **?כיצד להפעיל ID**\n\nביום פגישת ZOOM, תקבל קישור לפגישה המקוונת והשעה המדויקת שבה היא תתקיים. עליך לשלוח את הקוד הייחודי שלך לצ\'אט הכללי.\n\n.בתום פגישת ZOOM, ה-ID שלך יופעל',
+        help: '📖 עזרה\n\n:פקודות זמינות\n• START - התחל רישום\n• MENU - תפריט ראשי\n• 1-6 - בחר פריט תפריט\n• HELP - עזרה זו',
         today: 'היום',
         tomorrow: 'מחר',
         day_after_tomorrow: 'מחרתיים'
@@ -204,13 +216,14 @@ function getDatesMessage(language) {
     const dates = getNextThreeDays();
     const texts = TEXTS[language];
     const relative = [texts.today, texts.tomorrow, texts.day_after_tomorrow];
+    const emojis = ['1️⃣', '2️⃣', '3️⃣'];
     
     let message = texts.greeting + '\n\n' + texts.choose_date + '\n\n';
     
     for (let i = 0; i < dates.length; i++) {
         const weekday = getWeekdayName(dates[i], language);
         const formatted = formatDate(dates[i]);
-        message += `${i + 1} - ${relative[i]} (${weekday}) - ${formatted}\n`;
+        message += `${emojis[i]} ${relative[i]} (${weekday}) - ${formatted}\n`;
     }
     
     return message;
@@ -374,6 +387,61 @@ function initWhatsAppBot(qrCallback, readyCallback) {
                     
                     userStates.set(phoneNumber, { step: 'registered', language: user.language });
                     console.log(`[WHATSAPP] Date selected: ${selectedDate}`);
+                    return;
+                }
+            }
+            
+            // Обработка меню (пункты 1-6) - только для зарегистрированных
+            if (user && state.step === 'registered' && ['1', '2', '3', '4', '5', '6'].includes(body)) {
+                const texts = TEXTS[user.language || 'ru'];
+                const menuChoice = parseInt(body);
+                
+                if (menuChoice === 1) {
+                    // Напомнить ID
+                    const text = texts.your_id.replace('{participant_id}', user.participant_id);
+                    await msg.reply(text);
+                    console.log(`[WHATSAPP] Reminded ID`);
+                    return;
+                }
+                
+                if (menuChoice === 2) {
+                    // Напомнить код активации
+                    const text = texts.your_code.replace('{activation_code}', user.activation_code);
+                    await msg.reply(text);
+                    console.log(`[WHATSAPP] Reminded activation code`);
+                    return;
+                }
+                
+                if (menuChoice === 3) {
+                    // Напомнить дату встречи
+                    const dateText = user.zoom_date ? formatDate(new Date(user.zoom_date)) : 'не выбрана';
+                    const text = texts.your_date.replace('{zoom_date}', dateText);
+                    await msg.reply(text);
+                    console.log(`[WHATSAPP] Reminded meeting date`);
+                    return;
+                }
+                
+                if (menuChoice === 4) {
+                    // Перенести встречу - показать даты заново
+                    const datesMessage = getDatesMessage(user.language);
+                    await msg.reply(datesMessage);
+                    userStates.set(phoneNumber, { step: 'choosing_date', language: user.language });
+                    console.log(`[WHATSAPP] Rescheduling meeting`);
+                    return;
+                }
+                
+                if (menuChoice === 5) {
+                    // Как активировать ID
+                    await msg.reply(texts.how_to_activate);
+                    console.log(`[WHATSAPP] Showed activation info`);
+                    return;
+                }
+                
+                if (menuChoice === 6) {
+                    // Изменить язык
+                    await msg.reply(TEXTS.ru.welcome);
+                    userStates.set(phoneNumber, { step: 'choosing_language' });
+                    console.log(`[WHATSAPP] Changing language`);
                     return;
                 }
             }
