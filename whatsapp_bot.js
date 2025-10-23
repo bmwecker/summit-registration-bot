@@ -96,13 +96,15 @@ async function createUser(telegramId, username, firstName, language, phoneNumber
         const participantId = await getNextParticipantId();
         const activationCode = Math.floor(100000 + Math.random() * 900000).toString();
         
+        // Сохраняем номер WhatsApp в username и email для единообразия
         await pool.query(
             `INSERT INTO participants 
-            (telegram_id, username, first_name, participant_type, language, participant_id, activation_code, phone_number, is_active) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-            [telegramId, username, firstName, 'whatsapp_participant', language, participantId, activationCode, phoneNumber, false]
+            (telegram_id, username, first_name, participant_type, language, participant_id, activation_code, email, is_activated, registration_date) 
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+            [telegramId, username, firstName, 'whatsapp_participant', language, participantId, activationCode, phoneNumber, false, new Date()]
         );
         
+        console.log(`[WHATSAPP] User created: ID=${participantId}, Code=${activationCode}`);
         return { participantId, activationCode };
     } catch (error) {
         console.error('[WHATSAPP] Error creating user:', error);
