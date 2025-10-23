@@ -89,41 +89,72 @@ class EmailBot:
     
     def parse_command(self, text: str) -> Optional[str]:
         """Распознать команду в тексте письма"""
-        # Очищаем текст от лишних символов
-        original_text = text.strip()
-        # Убираем маркеры списков и скобки
-        text = re.sub(r'^[•\-\*]\s+', '', original_text)
-        text = re.sub(r'\(.*?\)', '', text)
-        text = text.strip()
+        if not text:
+            return None
         
-        # Проверяем иврит ДО lower() (чтобы не потерять символы)
-        if 'עברית' in original_text or 'עברית' in text:
+        logger.info(f"[EMAIL] Raw text: {repr(text[:200])}")
+        
+        # Берем только первую непустую строку (игнорируем цитаты, подписи)
+        lines = text.strip().split('\n')
+        first_line = ''
+        for line in lines:
+            clean_line = line.strip()
+            # Пропускаем пустые строки, цитаты (>), служебные заголовки Gmail
+            if clean_line and not clean_line.startswith('>') and not clean_line.startswith('On ') and not clean_line.startswith('It looks like'):
+                first_line = clean_line
+                break
+        
+        if not first_line:
+            return None
+        
+        logger.info(f"[EMAIL] First line: {repr(first_line)}")
+        
+        # Удаляем маркеры списков (•, -, *, +)
+        first_line = re.sub(r'^[•\-\*\+]\s+', '', first_line)
+        
+        # Удаляем скобки с пояснениями (например, "EN (или ENGLISH)" -> "EN")
+        first_line = re.sub(r'\s*\(.*?\)\s*', ' ', first_line).strip()
+        
+        # Проверяем иврит ДО lowercase
+        if 'עברית' in first_line:
+            logger.info("[EMAIL] Command: lang_he (Hebrew detected)")
             return 'lang_he'
         
-        text_lower = text.lower()
+        # Lowercase для остальных проверок
+        command = first_line.lower().strip()
         
-        # Команда START
-        if 'start' in text_lower:
+        logger.info(f"[EMAIL] Cleaned command: {repr(command)}")
+        
+        # START - точное совпадение
+        if command == 'start':
+            logger.info("[EMAIL] Command: start")
             return 'start'
         
-        # Выбор языка
-        if text_lower in ['ru', 'russian', 'русский'] or 'ru' in text_lower or 'russian' in text_lower:
+        # Даты - ТОЛЬКО цифры (проверяем ДО языков, чтобы не было конфликтов)
+        if command in ['1', '2', '3']:
+            logger.info(f"[EMAIL] Command: date_{command}")
+            return f'date_{command}'
+        
+        # Языки - ТОЧНОЕ совпадение (без 'in', чтобы "menu" не срабатывал как "en")
+        if command in ['ru', 'russian', 'русский']:
+            logger.info("[EMAIL] Command: lang_ru")
             return 'lang_ru'
-        elif text_lower in ['en', 'english', 'английский'] or 'en' in text_lower or 'english' in text_lower:
+        if command in ['en', 'english', 'английский']:
+            logger.info("[EMAIL] Command: lang_en")
             return 'lang_en'
-        elif text_lower in ['he', 'hebrew', 'иврит'] or 'he' in text_lower or 'hebrew' in text_lower:
+        if command in ['he', 'hebrew', 'иврит']:
+            logger.info("[EMAIL] Command: lang_he")
             return 'lang_he'
         
-        # Выбор даты (просто цифра)
-        if text_lower in ['1', '2', '3']:
-            return f'date_{text_lower}'
-        
-        # Команды меню
-        if 'menu' in text_lower or 'меню' in text_lower or 'תפריט' in text:
+        # MENU и HELP - проверяем вхождение
+        if 'menu' in command or 'меню' in command or 'תפריט' in first_line:
+            logger.info("[EMAIL] Command: menu")
             return 'menu'
-        if 'help' in text_lower or 'помощь' in text_lower or 'עזרה' in text:
+        if 'help' in command or 'помощь' in command or 'עזרה' in first_line:
+            logger.info("[EMAIL] Command: help")
             return 'help'
         
+        logger.warning(f"[EMAIL] Command not recognized: {repr(command)}")
         return None
     
     def get_user_by_email(self, email_address: str) -> Optional[Dict]:
