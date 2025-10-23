@@ -1,6 +1,6 @@
 """
 Email-бот для Aleph Bet Foresight Summit
-Полностью дублирует функционал Telegram-бота через email
+Полностью дублирует функционал Telegram/WhatsApp-бота через email
 """
 
 import os
@@ -9,13 +9,12 @@ import email
 from email.header import decode_header
 import time
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import Optional, Dict
 import re
 import hashlib
 
 from database import Database
-from languages import get_text, LANGUAGE_NAMES
 from email_sender import email_sender
 
 logger = logging.getLogger(__name__)
@@ -29,19 +28,115 @@ IMAP_PASSWORD = os.getenv("IMAP_PASSWORD", "")
 # Константы
 MAX_PARTICIPANTS_PER_DATE = 290
 
+# Тексты ТОЧНО как в WhatsApp боте
+TEXTS = {
+    'ru': {
+        'welcome': '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1️⃣ Русский 🇷🇺\n2️⃣ English 🇬🇧\n3️⃣ עברית 🇮🇱\n\nОтветьте на это письмо цифрой или словом (RU/EN/HE)',
+        'greeting': '✡️ Поздравляем — вы со своим народом!\nШалом! Меня зовут Шломо\n\n🎉 Вы приглашены на Zoom-встречу с оргкомитетом для знакомства с организаторами. Также на ней, вы сможете выбрать ту миссию, которая Вам по душе!\n\nКогда Вы хотите присоединиться к ZOOM встрече? Сегодня, завтра или послезавтра?',
+        'choose_date': '📅 Выберите удобную дату для Zoom-встречи:',
+        'date_full': '❌ К сожалению, на эту дату все места заняты. Пожалуйста, выберите другую дату.',
+        'meeting_confirmed': 'Отлично! Мы будем очень рады Вас видеть на нашей первой встрече!',
+        'id_and_code': '🎫 Ваш ID: №{participant_id}\n📲 Уникальный код для активации ID: {activation_code}\n\n⚠️ Для активации Вашего ID необходимо присутствовать на Zoom-встрече.\nПосле активации можно выбрать форму участия в саммите.',
+        'main_menu': '📱 Главное меню:\n\n1️⃣ Напомнить номер ID\n2️⃣ Напомнить код активации\n3️⃣ Напомнить дату встречи\n4️⃣ Перенести встречу\n5️⃣ Как активировать ID?\n6️⃣ Изменить язык\n\n_Ответьте номером (1-6) или командой (MENU, HELP)_',
+        'your_id': '📜 Ваш ID: №{participant_id}',
+        'your_code': '🔑 Ваш код активации: {activation_code}',
+        'your_date': '📅 Ваша дата Zoom-встречи: {zoom_date}',
+        'how_to_activate': '❓ Как активировать ID?\n\nВ день ZOOM встречи, Вы получите ссылку на онлайн встречу, и точное время её проведения, на которой Вы должны будете отправить свой уникальный код в общий чат.\n\nПо окончанию ZOOM встречи Ваш ID будет активирован.',
+        'help': '📖 Справка\n\nДоступные команды:\n• START - начать регистрацию\n• MENU - главное меню\n• 1-6 - выбрать пункт меню\n• HELP - эта справка',
+        'today': 'Сегодня',
+        'tomorrow': 'Завтра',
+        'day_after_tomorrow': 'Послезавтра'
+    },
+    'en': {
+        'welcome': '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1️⃣ Русский 🇷🇺\n2️⃣ English 🇬🇧\n3️⃣ עברית 🇮🇱\n\nReply with number or word (RU/EN/HE)',
+        'greeting': '✡️ Congratulations — you are with your people!\nShalom! My name is Shlomo\n\n🎉 You are invited to a Zoom meeting with the organizing committee to meet the organizers. You will also be able to choose the mission that suits you!\n\nWhen would you like to join the ZOOM meeting? Today, tomorrow, or the day after tomorrow?',
+        'choose_date': '📅 Choose a convenient date for the Zoom meeting:',
+        'date_full': '❌ Unfortunately, all places for this date are taken. Please choose another date.',
+        'meeting_confirmed': 'Great! We will be very happy to see you at our first meeting!',
+        'id_and_code': '🎫 Your ID: №{participant_id}\n📲 Unique activation code: {activation_code}\n\n⚠️ You must attend the Zoom meeting to activate your ID.\nAfter activation, you can choose your form of participation in the summit.',
+        'main_menu': '📱 Main menu:\n\n1️⃣ Remind ID number\n2️⃣ Remind activation code\n3️⃣ Remind meeting date\n4️⃣ Reschedule meeting\n5️⃣ How to activate ID?\n6️⃣ Change language\n\n_Reply with number (1-6) or command (MENU, HELP)_',
+        'your_id': '📜 Your ID: №{participant_id}',
+        'your_code': '🔑 Your activation code: {activation_code}',
+        'your_date': '📅 Your Zoom meeting date: {zoom_date}',
+        'how_to_activate': '❓ How to activate ID?\n\nOn the day of the ZOOM meeting, you will receive a link to the online meeting and the exact time it will take place. You must send your unique code to the general chat.\n\nAfter the ZOOM meeting is over, your ID will be activated.',
+        'help': '📖 Help\n\nAvailable commands:\n• START - start registration\n• MENU - main menu\n• 1-6 - select menu item\n• HELP - this help',
+        'today': 'Today',
+        'tomorrow': 'Tomorrow',
+        'day_after_tomorrow': 'Day after tomorrow'
+    },
+    'he': {
+        'welcome': '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1️⃣ Русский 🇷🇺\n2️⃣ English 🇬🇧\n3️⃣ עברית 🇮🇱\n\n(HE/EN/RU) ענה עם מספר או מילה',
+        'greeting': '✡️ !ברוכים הבאים — אתם עם העם שלכם\n!שלום! שמי שלמה\n\n🎉 אתם מוזמנים לפגישת Zoom עם הוועדה המארגנת כדי להכיר את המארגנים. תוכלו גם לבחור את המשימה המתאימה לכם!\n\nמתי תרצו להצטרף לפגישת ZOOM? היום, מחר או מחרתיים?',
+        'choose_date': '📅 :בחרו תאריך נוח לפגישת Zoom',
+        'date_full': '❌ למרבה הצער, כל המקומות לתאריך זה תפוסים. אנא בחרו תאריך אחר.',
+        'meeting_confirmed': '!מצוין! נשמח מאוד לראותכם בפגישה הראשונה שלנו',
+        'id_and_code': '🎫 ה-ID שלך: №{participant_id}\n📲 :קוד הפעלה ייחודי {activation_code}\n\n⚠️ עליך להשתתף בפגישת Zoom כדי להפעיל את ה-ID שלך.\n.לאחר ההפעלה, תוכל לבחור את צורת ההשתתפות שלך בפסגה',
+        'main_menu': '📱 :תפריט ראשי\n\n1️⃣ הזכר מספר ID\n2️⃣ הזכר קוד הפעלה\n3️⃣ הזכר תאריך פגישה\n4️⃣ קבע מחדש פגישה\n5️⃣ ?כיצד להפעיל ID\n6️⃣ שנה שפה\n\n_(MENU ,HELP) ענה במספר (1-6) או פקודה_',
+        'your_id': '📜 ה-ID שלך: №{participant_id}',
+        'your_code': '🔑 קוד ההפעלה שלך: {activation_code}',
+        'your_date': '📅 תאריך פגישת Zoom שלך: {zoom_date}',
+        'how_to_activate': '❓ ?כיצד להפעיל ID\n\nביום פגישת ZOOM, תקבל קישור לפגישה המקוונת והשעה המדויקת שבה היא תתקיים. עליך לשלוח את הקוד הייחודי שלך לצ\'אט הכללי.\n\n.בתום פגישת ZOOM, ה-ID שלך יופעל',
+        'help': '📖 עזרה\n\n:פקודות זמינות\n• START - התחל רישום\n• MENU - תפריט ראשי\n• 1-6 - בחר פריט תפריט\n• HELP - עזרה זו',
+        'today': 'היום',
+        'tomorrow': 'מחר',
+        'day_after_tomorrow': 'מחרתיים'
+    }
+}
+
+# Названия дней недели
+WEEKDAY_NAMES = {
+    'ru': ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+    'en': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    'he': ['יום שני', 'יום שלישי', 'יום רביעי', 'יום חמישי', 'יום שישי', 'שבת', 'יום ראשון']
+}
+
 # Инициализация БД
 db = Database()
 
+# Состояние пользователей (в памяти)
+user_states = {}
+
 
 def email_to_telegram_id(email_address: str) -> int:
-    """Конвертировать email в уникальный отрицательный telegram_id"""
-    # Используем хеш email и делаем отрицательным чтобы отличить от Telegram пользователей
-    hash_value = int(hashlib.md5(email_address.lower().encode()).hexdigest()[:8], 16)
-    return -hash_value  # Отрицательный ID для email пользователей
+    """Генерирует уникальный отрицательный telegram_id из email"""
+    hash_object = hashlib.sha256(email_address.lower().encode())
+    hex_dig = hash_object.hexdigest()
+    return -int(hex_dig[:15], 16)
+
+
+def get_next_three_days():
+    """Получение следующих трёх дней (пропуск пятницы и субботы)"""
+    days = []
+    current = datetime.now()
+    
+    while len(days) < 3:
+        day_of_week = current.weekday()
+        # Пропускаем пятницу (4) и субботу (5)
+        if day_of_week not in [4, 5]:
+            days.append(current)
+        current += timedelta(days=1)
+    
+    return days
+
+
+def format_date(date):
+    """Форматирование даты DD.MM.YYYY"""
+    return date.strftime('%d.%m.%Y')
+
+
+def format_date_for_db(date):
+    """Форматирование даты для БД YYYY-MM-DD"""
+    return date.strftime('%Y-%m-%d')
+
+
+def get_weekday_name(date, language):
+    """Получение названия дня недели"""
+    day_index = date.weekday()
+    return WEEKDAY_NAMES[language][day_index]
 
 
 class EmailBot:
-    """Email-бот с полным функционалом Telegram-бота"""
+    """Email-бот с полным функционалом"""
     
     def __init__(self):
         self.imap_host = IMAP_HOST
@@ -57,13 +152,13 @@ class EmailBot:
     def connect_imap(self):
         """Подключение к IMAP серверу"""
         try:
-            logger.info(f"Connecting to IMAP: {self.imap_host}:{self.imap_port}")
+            logger.info(f"[EMAIL] Connecting to IMAP: {self.imap_host}:{self.imap_port}")
             mail = imaplib.IMAP4_SSL(self.imap_host, self.imap_port)
             mail.login(self.imap_user, self.imap_password)
-            logger.info("IMAP connection successful")
+            logger.info("[EMAIL] IMAP connection successful")
             return mail
         except Exception as e:
-            logger.error(f"Failed to connect to IMAP: {e}")
+            logger.error(f"[EMAIL] Failed to connect to IMAP: {e}")
             return None
     
     def get_email_body(self, msg) -> str:
@@ -94,12 +189,12 @@ class EmailBot:
         
         logger.info(f"[EMAIL] Raw text: {repr(text[:200])}")
         
-        # Берем только первую непустую строку (игнорируем цитаты, подписи)
+        # Берем только первую непустую строку
         lines = text.strip().split('\n')
         first_line = ''
         for line in lines:
             clean_line = line.strip()
-            # Пропускаем пустые строки, цитаты (>), служебные заголовки Gmail
+            # Пропускаем пустые строки, цитаты (>), служебные заголовки
             if clean_line and not clean_line.startswith('>') and not clean_line.startswith('On ') and not clean_line.startswith('It looks like'):
                 first_line = clean_line
                 break
@@ -109,10 +204,9 @@ class EmailBot:
         
         logger.info(f"[EMAIL] First line: {repr(first_line)}")
         
-        # Удаляем маркеры списков (•, -, *, +)
+        # Удаляем маркеры списков
         first_line = re.sub(r'^[•\-\*\+]\s+', '', first_line)
-        
-        # Удаляем скобки с пояснениями (например, "EN (или ENGLISH)" -> "EN")
+        # Удаляем скобки с пояснениями
         first_line = re.sub(r'\s*\(.*?\)\s*', ' ', first_line).strip()
         
         # Проверяем иврит ДО lowercase
@@ -120,22 +214,27 @@ class EmailBot:
             logger.info("[EMAIL] Command: lang_he (Hebrew detected)")
             return 'lang_he'
         
-        # Lowercase для остальных проверок
+        # Lowercase для остальных
         command = first_line.lower().strip()
         
         logger.info(f"[EMAIL] Cleaned command: {repr(command)}")
         
         # START - точное совпадение
-        if command == 'start':
+        if command == 'start' or command == 'старт':
             logger.info("[EMAIL] Command: start")
             return 'start'
         
-        # Даты - ТОЛЬКО цифры (проверяем ДО языков, чтобы не было конфликтов)
+        # Даты - ТОЛЬКО цифры
         if command in ['1', '2', '3']:
-            logger.info(f"[EMAIL] Command: date_{command}")
-            return f'date_{command}'
+            logger.info(f"[EMAIL] Command: date/menu_{command}")
+            return command  # Вернем просто цифру, контекст определит значение
         
-        # Языки - ТОЧНОЕ совпадение (без 'in', чтобы "menu" не срабатывал как "en")
+        # Пункты меню 4-6
+        if command in ['4', '5', '6']:
+            logger.info(f"[EMAIL] Command: menu_{command}")
+            return command
+        
+        # Языки - ТОЧНОЕ совпадение
         if command in ['ru', 'russian', 'русский']:
             logger.info("[EMAIL] Command: lang_ru")
             return 'lang_ru'
@@ -146,7 +245,7 @@ class EmailBot:
             logger.info("[EMAIL] Command: lang_he")
             return 'lang_he'
         
-        # MENU и HELP - проверяем вхождение
+        # MENU и HELP
         if 'menu' in command or 'меню' in command or 'תפריט' in first_line:
             logger.info("[EMAIL] Command: menu")
             return 'menu'
@@ -162,131 +261,220 @@ class EmailBot:
         telegram_id = email_to_telegram_id(email_address)
         return db.get_user(telegram_id)
     
-    def send_welcome(self, to_email: str):
-        """Отправить приветствие с выбором языка"""
-        subject = "🕊️ Aleph Bet Foresight Summit"
-        body = """🕊️ Welcome! Добро пожаловать! ברוכים הבאים!
-
-Please choose language / Выберите язык / בחר שפה:
-
-Reply to this email with ONE of these words:
-Ответьте на это письмо ОДНИМ из этих слов:
-ענה למייל זה עם אחת המילים הבאות:
-
-• RU (или RUSSIAN)
-• EN (или ENGLISH)  
-• HE (или HEBREW / עברית)
-
----
-
-Best regards / С уважением / בברכה,
-Aleph Bet Foresight Summit Team
-"""
-        
-        email_sender.send_email(to_email, subject, body)
-        logger.info(f"Sent welcome email to {to_email}")
-    
-    def send_greeting(self, to_email: str, language: str):
-        """Отправить приветствие от Шломо с выбором даты"""
-        greeting_text = get_text(language, 'greeting')
-        
-        subject_map = {
-            'ru': "✡️ Добро пожаловать!",
-            'en': "✡️ Welcome!",
-            'he': "✡️ ברוכים הבאים!"
-        }
-        
-        # Получаем 3 доступные даты
-        from bot import get_next_three_days, format_date_button
+    def get_dates_message(self, language: str) -> str:
+        """Сформировать сообщение с датами"""
         dates = get_next_three_days()
+        texts = TEXTS[language]
+        relative = [texts['today'], texts['tomorrow'], texts['day_after_tomorrow']]
+        emojis = ['1️⃣', '2️⃣', '3️⃣']
         
-        date_options = []
+        message = texts['greeting'] + '\n\n' + texts['choose_date'] + '\n\n'
+        
         for i, date in enumerate(dates):
-            date_str = date.strftime('%Y-%m-%d')
-            button_text = format_date_button(date, language, i)
-            count = db.get_participants_count_by_date(date_str)
-            
-            if count >= MAX_PARTICIPANTS_PER_DATE:
-                button_text += " ❌ FULL"
+            weekday = get_weekday_name(date, language)
+            formatted = format_date(date)
+            count = db.get_participants_count_by_date(format_date_for_db(date))
+            message += f"{emojis[i]} {relative[i]} ({weekday}) - {formatted} ({count}/{MAX_PARTICIPANTS_PER_DATE})\n"
+        
+        message += "\nОтветьте цифрой (1, 2 или 3)" if language == 'ru' else "\nReply with number (1, 2, or 3)" if language == 'en' else "\n(3 ,2 ,1) ענה במספר"
+        
+        return message
+    
+    def send_email(self, to_email: str, subject: str, body: str):
+        """Отправить email"""
+        email_sender.send_email(to_email, subject, body)
+        logger.info(f"[EMAIL] Sent email to {to_email}: {subject}")
+    
+    def process_email_command(self, from_email: str, body: str, subject: str):
+        """Обработка команды из email"""
+        telegram_id = email_to_telegram_id(from_email)
+        user = self.get_user_by_email(from_email)
+        state = user_states.get(from_email, {'step': 'start'})
+        command = self.parse_command(body)
+        
+        logger.info(f"[EMAIL] From: {from_email}, Command: {command}, State: {state['step']}, User exists: {bool(user)}")
+        
+        if not command:
+            # Не распознали команду
+            texts = TEXTS[user['language'] if user else 'ru']
+            self.send_email(from_email, "📖 Help / Справка", texts['help'])
+            return
+        
+        # Команда START
+        if command == 'start':
+            if user:
+                # Показать меню для существующего пользователя
+                texts = TEXTS[user['language']]
+                menu_text = texts['main_menu']
+                self.send_email(from_email, "📱 Menu / Меню", menu_text)
+                user_states[from_email] = {'step': 'registered', 'language': user['language']}
             else:
-                button_text += f" ({count}/{MAX_PARTICIPANTS_PER_DATE})"
+                # Новый пользователь - выбор языка
+                self.send_email(from_email, "🕊️ Welcome / Добро пожаловать", TEXTS['ru']['welcome'])
+                user_states[from_email] = {'step': 'choosing_language'}
+            return
+        
+        # Если пользователя нет и это не START - показать welcome
+        if not user and state['step'] == 'start':
+            self.send_email(from_email, "🕊️ Welcome / Добро пожаловать", TEXTS['ru']['welcome'])
+            user_states[from_email] = {'step': 'choosing_language'}
+            return
+        
+        # Выбор языка
+        if state['step'] == 'choosing_language' and command.startswith('lang_'):
+            language = command.split('_')[1]
+            logger.info(f"[EMAIL] Language selected: {language}")
             
-            date_options.append(f"{i+1}. {button_text}")
+            if not user:
+                # Создаем нового пользователя
+                first_name = from_email.split('@')[0]
+                participant_id, activation_code = db.create_user(
+                    telegram_id=telegram_id,
+                    username=from_email,
+                    first_name=first_name,
+                    participant_type='email_participant',
+                    language=language
+                )
+                db.update_user_email(telegram_id, from_email)
+                user = db.get_user(telegram_id)
+                logger.info(f"[EMAIL] User created: ID={participant_id}, Code={activation_code}")
+            else:
+                db.set_user_language(telegram_id, language)
+                db.update_user_email(telegram_id, from_email)
+                user = db.get_user(telegram_id)
+            
+            # Отправляем список дат
+            dates_message = self.get_dates_message(language)
+            subject_map = {
+                'ru': '✡️ Добро пожаловать!',
+                'en': '✡️ Welcome!',
+                'he': '✡️ ברוכים הבאים!'
+            }
+            self.send_email(from_email, subject_map[language], dates_message)
+            user_states[from_email] = {'step': 'choosing_date', 'language': language}
+            return
         
-        instructions_map = {
-            'ru': f"\n\n📅 Выберите удобную дату для Zoom-встречи:\n\n" + "\n".join(date_options) + "\n\nОтветьте на это письмо цифрой (1, 2 или 3):",
-            'en': f"\n\n📅 Choose a convenient date for the Zoom meeting:\n\n" + "\n".join(date_options) + "\n\nReply to this email with a number (1, 2, or 3):",
-            'he': f"\n\n📅 בחר תאריך נוח לפגישת Zoom:\n\n" + "\n".join(date_options) + "\n\nענה למייל זה עם מספר (1, 2 או 3):"
-        }
+        # Выбор даты
+        if state['step'] == 'choosing_date' and command in ['1', '2', '3']:
+            if not user:
+                self.send_email(from_email, "🕊️ Welcome", TEXTS['ru']['welcome'])
+                user_states[from_email] = {'step': 'choosing_language'}
+                return
+            
+            date_index = int(command) - 1
+            dates = get_next_three_days()
+            
+            if 0 <= date_index < len(dates):
+                selected_date = format_date_for_db(dates[date_index])
+                count = db.get_participants_count_by_date(selected_date)
+                
+                texts = TEXTS[user['language']]
+                
+                if count >= MAX_PARTICIPANTS_PER_DATE:
+                    # Дата заполнена
+                    full_message = texts['date_full'] + "\n\n" + self.get_dates_message(user['language'])
+                    self.send_email(from_email, "❌ Date full / Дата заполнена", full_message)
+                    return
+                
+                # Обновляем дату
+                db.update_zoom_date(telegram_id, selected_date)
+                user = db.get_user(telegram_id)
+                
+                # Отправляем подтверждение с ID и кодом
+                confirmation = texts['meeting_confirmed'] + "\n\n" + texts['id_and_code'].replace('{participant_id}', str(user['participant_id'])).replace('{activation_code}', user['activation_code'])
+                subject_map = {
+                    'ru': '🎫 Регистрация подтверждена!',
+                    'en': '🎫 Registration confirmed!',
+                    'he': '🎫 !הרישום אושר'
+                }
+                self.send_email(from_email, subject_map[user['language']], confirmation)
+                
+                # Отправляем меню
+                menu_text = texts['main_menu']
+                self.send_email(from_email, "📱 Menu / Меню", menu_text)
+                
+                user_states[from_email] = {'step': 'registered', 'language': user['language']}
+                logger.info(f"[EMAIL] Date selected: {selected_date}")
+            return
         
-        body = greeting_text + instructions_map.get(language, instructions_map['ru'])
+        # Обработка меню (пункты 1-6) - только для зарегистрированных
+        if user and state['step'] == 'registered' and command in ['1', '2', '3', '4', '5', '6']:
+            texts = TEXTS[user['language']]
+            menu_choice = int(command)
+            
+            if menu_choice == 1:
+                # Напомнить ID
+                text = texts['your_id'].replace('{participant_id}', str(user['participant_id']))
+                self.send_email(from_email, "📜 Your ID", text)
+                logger.info(f"[EMAIL] Reminded ID")
+                return
+            
+            if menu_choice == 2:
+                # Напомнить код
+                text = texts['your_code'].replace('{activation_code}', user['activation_code'])
+                self.send_email(from_email, "🔑 Activation code / Код активации", text)
+                logger.info(f"[EMAIL] Reminded activation code")
+                return
+            
+            if menu_choice == 3:
+                # Напомнить дату
+                date_text = format_date(datetime.strptime(user['zoom_date'], '%Y-%m-%d')) if user.get('zoom_date') else 'не выбрана'
+                text = texts['your_date'].replace('{zoom_date}', date_text)
+                self.send_email(from_email, "📅 Meeting date / Дата встречи", text)
+                logger.info(f"[EMAIL] Reminded meeting date")
+                return
+            
+            if menu_choice == 4:
+                # Перенести встречу
+                dates_message = self.get_dates_message(user['language'])
+                subject_map = {
+                    'ru': '📅 Выберите новую дату',
+                    'en': '📅 Choose new date',
+                    'he': '📅 בחר תאריך חדש'
+                }
+                self.send_email(from_email, subject_map[user['language']], dates_message)
+                user_states[from_email] = {'step': 'choosing_date', 'language': user['language']}
+                logger.info(f"[EMAIL] Rescheduling meeting")
+                return
+            
+            if menu_choice == 5:
+                # Как активировать ID
+                self.send_email(from_email, "❓ How to activate / Как активировать", texts['how_to_activate'])
+                logger.info(f"[EMAIL] Showed activation info")
+                return
+            
+            if menu_choice == 6:
+                # Изменить язык
+                self.send_email(from_email, "🌍 Change language / Изменить язык", TEXTS['ru']['welcome'])
+                user_states[from_email] = {'step': 'choosing_language'}
+                logger.info(f"[EMAIL] Changing language")
+                return
         
-        email_sender.send_email(
-            to_email,
-            subject_map.get(language, subject_map['ru']),
-            body
-        )
-        logger.info(f"Sent greeting email to {to_email} in {language}")
-    
-    def send_confirmation(
-        self,
-        to_email: str,
-        participant_id: int,
-        activation_code: str,
-        zoom_date: str,
-        language: str
-    ):
-        """Отправить подтверждение регистрации с ID и кодом"""
-        confirmation_text = get_text(language, 'meeting_confirmed')
-        id_code_text = get_text(
-            language,
-            'id_and_code',
-            participant_id=participant_id,
-            activation_code=activation_code
-        )
+        # Команда MENU
+        if command == 'menu':
+            if user:
+                texts = TEXTS[user['language']]
+                self.send_email(from_email, "📱 Menu / Меню", texts['main_menu'])
+                user_states[from_email] = {'step': 'registered', 'language': user['language']}
+            else:
+                self.send_email(from_email, "🕊️ Welcome", TEXTS['ru']['welcome'])
+                user_states[from_email] = {'step': 'choosing_language'}
+            return
         
-        subject_map = {
-            'ru': "🎫 Ваша регистрация подтверждена!",
-            'en': "🎫 Your registration is confirmed!",
-            'he': "🎫 הרישום שלך אושר!"
-        }
+        # Команда HELP
+        if command == 'help':
+            texts = TEXTS[user['language'] if user else 'ru']
+            self.send_email(from_email, "📖 Help / Справка", texts['help'])
+            return
         
-        menu_text_map = {
-            'ru': "\n\n📱 Вы можете в любой момент написать:\n• MENU - главное меню\n• HELP - справка",
-            'en': "\n\n📱 You can write anytime:\n• MENU - main menu\n• HELP - help",
-            'he': "\n\n📱 אתה יכול לכתוב בכל עת:\n• MENU - תפריט ראשי\n• HELP - עזרה"
-        }
-        
-        body = confirmation_text + "\n\n" + id_code_text + menu_text_map.get(language, menu_text_map['ru'])
-        
-        email_sender.send_email(
-            to_email,
-            subject_map.get(language, subject_map['ru']),
-            body
-        )
-        logger.info(f"Sent confirmation to {to_email}, ID: {participant_id}")
-    
-    def send_date_full(self, to_email: str, language: str):
-        """Отправить сообщение что дата заполнена"""
-        subject_map = {
-            'ru': "❌ Дата заполнена",
-            'en': "❌ Date is full",
-            'he': "❌ התאריך מלא"
-        }
-        
-        body = get_text(language, 'date_full')
-        body += "\n\n" + get_text(language, 'choose_date')
-        
-        email_sender.send_email(
-            to_email,
-            subject_map.get(language, subject_map['ru']),
-            body
-        )
+        # Если ничего не распознали
+        texts = TEXTS[user['language'] if user else 'ru']
+        self.send_email(from_email, "📖 Help / Справка", texts['help'])
     
     def process_incoming_emails(self):
         """Обработка входящих писем"""
         if not self.is_configured():
-            logger.warning("IMAP not configured")
+            logger.warning("[EMAIL] IMAP not configured")
             return
         
         mail = self.connect_imap()
@@ -294,59 +482,65 @@ Aleph Bet Foresight Summit Team
             return
         
         try:
-            # Выбираем папку входящих
             mail.select('INBOX')
-            logger.info("Connected to INBOX, checking for emails...")
+            logger.info("[EMAIL] Connected to INBOX, checking for emails...")
             
-            # Ищем непрочитанные письма
             status, messages = mail.search(None, 'UNSEEN')
             
             if status != 'OK':
-                logger.warning(f"Search failed: {status}")
+                logger.warning(f"[EMAIL] Search failed: {status}")
                 return
             
             email_ids = messages[0].split()
             
-            if email_ids:
-                logger.info(f"Found {len(email_ids)} unread emails")
+            if not email_ids:
+                logger.info("[EMAIL] No new emails")
+                return
+            
+            logger.info(f"[EMAIL] Found {len(email_ids)} new emails")
             
             for email_id in email_ids:
                 try:
-                    # Получаем письмо
                     status, msg_data = mail.fetch(email_id, '(RFC822)')
                     
                     if status != 'OK':
                         continue
                     
-                    # Парсим письмо
-                    msg = email.message_from_bytes(msg_data[0][1])
-                    
-                    # Получаем адрес отправителя
-                    from_email = msg.get('From')
-                    # Извлекаем чистый email
-                    from_match = re.search(r'[\w\.-]+@[\w\.-]+', from_email)
-                    if from_match:
-                        from_email = from_match.group()
-                    
-                    # Получаем тему
-                    subject = decode_header(msg.get('Subject', ''))[0][0]
-                    if isinstance(subject, bytes):
-                        subject = subject.decode()
-                    
-                    # Получаем тело письма
-                    body = self.get_email_body(msg)
-                    
-                    logger.info(f"Processing email from {from_email}: {body[:50]}")
-                    
-                    # Обрабатываем команду
-                    self.process_email_command(from_email, body, subject)
-                    
+                    for response_part in msg_data:
+                        if isinstance(response_part, tuple):
+                            msg = email.message_from_bytes(response_part[1])
+                            
+                            # Получаем отправителя
+                            from_email = msg.get('From', '')
+                            if '<' in from_email:
+                                from_email = from_email.split('<')[1].split('>')[0]
+                            
+                            # Получаем тему
+                            subject = msg.get('Subject', '')
+                            if subject:
+                                decoded = decode_header(subject)[0]
+                                if isinstance(decoded[0], bytes):
+                                    subject = decoded[0].decode(decoded[1] or 'utf-8')
+                                else:
+                                    subject = decoded[0]
+                            
+                            # Получаем тело письма
+                            body = self.get_email_body(msg)
+                            
+                            if not body:
+                                continue
+                            
+                            logger.info(f"[EMAIL] Processing email from {from_email}")
+                            
+                            # Обрабатываем команду
+                            self.process_email_command(from_email, body, subject)
+                            
                 except Exception as e:
-                    logger.error(f"Error processing email {email_id}: {e}")
-                    import traceback
-                    logger.error(traceback.format_exc())
+                    logger.error(f"[EMAIL] Error processing email: {e}")
                     continue
-        
+            
+        except Exception as e:
+            logger.error(f"[EMAIL] Error in process_incoming_emails: {e}")
         finally:
             try:
                 mail.close()
@@ -354,269 +548,29 @@ Aleph Bet Foresight Summit Team
             except:
                 pass
     
-    def process_email_command(self, from_email: str, body: str, subject: str):
-        """Обработка команды из письма"""
-        # Получаем telegram_id для этого email
-        telegram_id = email_to_telegram_id(from_email)
-        
-        # Проверяем, есть ли пользователь в БД
-        user = db.get_user(telegram_id)
-        
-        command = self.parse_command(body)
-        
-        logger.info(f"Parsed command: {command} for user: {user}")
-        
-        if not command:
-            # Если не распознали команду, отправляем помощь
-            language = user.get('language', 'ru') if user else 'ru'
-            self.send_help(from_email, language)
-            return
-        
-        # Команда START
-        if command == 'start':
-            if user:
-                # Пользователь уже есть - отправляем меню
-                self.send_menu(from_email, user)
-            else:
-                # Новый пользователь - отправляем приветствие с выбором языка
-                self.send_welcome(from_email)
-            return
-        
-        # Выбор языка
-        if command.startswith('lang_'):
-            language = command.split('_')[1]
-            
-            if user:
-                # Обновляем язык существующего пользователя
-                db.set_user_language(telegram_id, language)
-                logger.info(f"Updated language for {from_email} to {language}")
-                self.send_greeting(from_email, language)
-            else:
-                # Создаём нового пользователя (пока без даты и ID)
-                username = from_email.split('@')[0]
-                first_name = username
-                
-                # Создаём временного пользователя с выбранным языком
-                db.create_user(
-                    telegram_id=telegram_id,
-                    username=username,
-                    first_name=first_name,
-                    participant_type='participant',
-                    language=language
-                )
-                
-                # Сохраняем email
-                db.update_user_email(telegram_id, from_email)
-                
-                logger.info(f"Created new user for {from_email} with language {language}")
-                
-                # Отправляем приветствие с выбором даты
-                self.send_greeting(from_email, language)
-            return
-        
-        # Выбор даты
-        if command.startswith('date_'):
-            if not user:
-                # Пользователь должен сначала выбрать язык
-                self.send_welcome(from_email)
-                return
-            
-            language = user.get('language', 'ru')
-            date_index = int(command.split('_')[1]) - 1  # 1 -> 0, 2 -> 1, 3 -> 2
-            
-            # Получаем даты
-            from bot import get_next_three_days
-            dates = get_next_three_days()
-            
-            if date_index < 0 or date_index >= len(dates):
-                self.send_help(from_email, language)
-                return
-            
-            selected_date = dates[date_index]
-            date_str = selected_date.strftime('%Y-%m-%d')
-            
-            # Проверяем лимит
-            count = db.get_participants_count_by_date(date_str)
-            if count >= MAX_PARTICIPANTS_PER_DATE:
-                self.send_date_full(from_email, language)
-                return
-            
-            # Обновляем дату
-            db.update_zoom_date(telegram_id, date_str)
-            
-            # Получаем обновлённого пользователя
-            user = db.get_user(telegram_id)
-            
-            logger.info(f"Set date {date_str} for {from_email}, ID: {user['participant_id']}")
-            
-            # Отправляем подтверждение с ID и кодом
-            self.send_confirmation(
-                from_email,
-                user['participant_id'],
-                user['activation_code'],
-                date_str,
-                language
-            )
-            return
-        
-        # Команда MENU
-        if command == 'menu':
-            if not user:
-                self.send_welcome(from_email)
-                return
-            
-            self.send_menu(from_email, user)
-            return
-        
-        # Команда HELP
-        if command == 'help':
-            language = user.get('language', 'ru') if user else 'ru'
-            self.send_help(from_email, language)
-            return
-    
-    def send_help(self, to_email: str, language: str = 'ru'):
-        """Отправить справку"""
-        help_texts = {
-            'ru': """📖 Справка по Email-боту
-
-Доступные команды (отвечайте на письма этими словами):
-
-• START - начать регистрацию
-• RU / EN / HE - выбрать язык
-• 1 / 2 / 3 - выбрать дату (после выбора языка)
-• MENU - главное меню
-• HELP - эта справка
-
-Вы также можете просто отвечать на письма, следуя инструкциям.
-
-С уважением,
-Aleph Bet Foresight Summit
-""",
-            'en': """📖 Email Bot Help
-
-Available commands (reply to emails with these words):
-
-• START - begin registration
-• RU / EN / HE - choose language
-• 1 / 2 / 3 - choose date (after language selection)
-• MENU - main menu
-• HELP - this help
-
-You can also simply reply to emails following the instructions.
-
-Best regards,
-Aleph Bet Foresight Summit
-""",
-            'he': """📖 עזרה עבור Email בוט
-
-פקודות זמינות (השב למיילים עם המילים הבאות):
-
-• START - התחל רישום
-• RU / EN / HE - בחר שפה
-• 1 / 2 / 3 - בחר תאריך (אחרי בחירת שפה)
-• MENU - תפריט ראשי
-• HELP - עזרה זו
-
-אתה יכול גם פשוט להשיב למיילים בעקבות ההוראות.
-
-בברכה,
-Aleph Bet Foresight Summit
-"""
-        }
-        
-        email_sender.send_email(
-            to_email,
-            "📖 Help / Справка / עזרה",
-            help_texts.get(language, help_texts['ru'])
-        )
-    
-    def send_menu(self, to_email: str, user: Dict):
-        """Отправить главное меню"""
-        language = user.get('language', 'ru')
-        
-        menu_texts = {
-            'ru': f"""📱 Главное меню
-
-🎫 Ваш ID: №{user.get('participant_id', 'N/A')}
-🔑 Ваш код активации: {user.get('activation_code', 'N/A')}
-📅 Дата встречи: {user.get('zoom_date', 'не указана')}
-
-Вы можете писать:
-• HELP - справка по командам
-
-Если нужно изменить данные или получить инструкции - напишите нам!
-
-С уважением,
-Команда Aleph Bet Foresight Summit
-""",
-            'en': f"""📱 Main Menu
-
-🎫 Your ID: №{user.get('participant_id', 'N/A')}
-🔑 Your activation code: {user.get('activation_code', 'N/A')}
-📅 Meeting date: {user.get('zoom_date', 'not set')}
-
-You can write:
-• HELP - help with commands
-
-If you need to change data or get instructions - write to us!
-
-Best regards,
-Aleph Bet Foresight Summit Team
-""",
-            'he': f"""📱 תפריט ראשי
-
-🎫 ה-ID שלך: №{user.get('participant_id', 'N/A')}
-🔑 קוד ההפעלה שלך: {user.get('activation_code', 'N/A')}
-📅 תאריך הפגישה: {user.get('zoom_date', 'לא נקבע')}
-
-אתה יכול לכתוב:
-• HELP - עזרה עם פקודות
-
-אם אתה צריך לשנות נתונים או לקבל הוראות - כתוב לנו!
-
-בברכה,
-צוות Aleph Bet Foresight Summit
-"""
-        }
-        
-        email_sender.send_email(
-            to_email,
-            "📱 Menu / Меню / תפריט",
-            menu_texts.get(language, menu_texts['ru'])
-        )
-    
-    def run(self, interval: int = 30):
-        """Запустить бота с проверкой каждые N секунд"""
-        logger.info("Email bot started")
+    def run(self):
+        """Запуск бота"""
+        logger.info("[EMAIL] Email bot started")
         
         while True:
             try:
                 self.process_incoming_emails()
-                time.sleep(interval)
             except Exception as e:
-                logger.error(f"Error in email bot loop: {e}")
-                import traceback
-                logger.error(traceback.format_exc())
-                time.sleep(interval)
+                logger.error(f"[EMAIL] Error in email bot: {e}")
+            
+            time.sleep(10)  # Проверяем каждые 10 секунд
 
 
 def start_email_bot():
-    """Запустить email-бота"""
+    """Запуск Email бота"""
     bot = EmailBot()
-    
     if not bot.is_configured():
-        logger.warning("Email bot not configured (missing IMAP settings)")
+        logger.warning("[EMAIL] Email bot not configured - skipping")
         return
     
-    logger.info("Starting email bot...")
+    logger.info("[EMAIL] Starting Email bot...")
     bot.run()
 
 
-if __name__ == '__main__':
-    # Настройка логирования
-    logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO
-    )
-    
+if __name__ == "__main__":
     start_email_bot()
