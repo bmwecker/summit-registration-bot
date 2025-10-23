@@ -237,6 +237,25 @@ class Database:
         conn.commit()
         conn.close()
     
+    def update_user_email(self, telegram_id: int, email: str):
+        """Обновить email пользователя"""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+        
+        if self.use_postgres:
+            cursor.execute(
+                "UPDATE participants SET email = %s WHERE telegram_id = %s",
+                (email, telegram_id)
+            )
+        else:
+            cursor.execute(
+                "UPDATE participants SET email = ? WHERE telegram_id = ?",
+                (email, telegram_id)
+            )
+        
+        conn.commit()
+        conn.close()
+    
     def get_participants_count_by_date(self, zoom_date: str) -> int:
         """Получить количество участников на дату"""
         if self.use_postgres:
