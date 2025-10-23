@@ -320,39 +320,59 @@ class EmailBot:
             user_states[from_email] = {'step': 'choosing_language'}
             return
         
-        # Выбор языка
-        if state['step'] == 'choosing_language' and command.startswith('lang_'):
-            language = command.split('_')[1]
-            logger.info(f"[EMAIL] Language selected: {language}")
+        # Выбор языка - обрабатываем и цифры (1,2,3) и слова (lang_ru, ru, russian)
+        if state['step'] == 'choosing_language':
+            language = None
             
-            if not user:
-                # Создаем нового пользователя
-                first_name = from_email.split('@')[0]
-                participant_id, activation_code = db.create_user(
-                    telegram_id=telegram_id,
-                    username=from_email,
-                    first_name=first_name,
-                    participant_type='email_participant',
-                    language=language
-                )
-                db.update_user_email(telegram_id, from_email)
-                user = db.get_user(telegram_id)
-                logger.info(f"[EMAIL] User created: ID={participant_id}, Code={activation_code}")
+            # Цифры: 1=ru, 2=en, 3=he
+            if command == '1':
+                language = 'ru'
+            elif command == '2':
+                language = 'en'
+            elif command == '3':
+                language = 'he'
+            # Команды lang_*
+            elif command.startswith('lang_'):
+                language = command.split('_')[1]
+            
+            if language:
+                logger.info(f"[EMAIL] Language selected: {language}")
+            
+            if language:
+                if not user:
+                    # Создаем нового пользователя
+                    first_name = from_email.split('@')[0]
+                    participant_id, activation_code = db.create_user(
+                        telegram_id=telegram_id,
+                        username=from_email,
+                        first_name=first_name,
+                        participant_type='email_participant',
+                        language=language
+                    )
+                    db.update_user_email(telegram_id, from_email)
+                    user = db.get_user(telegram_id)
+                    logger.info(f"[EMAIL] User created: ID={participant_id}, Code={activation_code}")
+                else:
+                    # Обновляем язык для существующего пользователя
+                    db.set_user_language(telegram_id, language)
+                    db.update_user_email(telegram_id, from_email)
+                    user = db.get_user(telegram_id)
+                
+                # Отправляем список дат
+                dates_message = self.get_dates_message(language)
+                subject_map = {
+                    'ru': '✡️ Добро пожаловать!',
+                    'en': '✡️ Welcome!',
+                    'he': '✡️ ברוכים הבאים!'
+                }
+                self.send_email(from_email, subject_map[language], dates_message)
+                user_states[from_email] = {'step': 'choosing_date', 'language': language}
+                return
             else:
-                db.set_user_language(telegram_id, language)
-                db.update_user_email(telegram_id, from_email)
-                user = db.get_user(telegram_id)
-            
-            # Отправляем список дат
-            dates_message = self.get_dates_message(language)
-            subject_map = {
-                'ru': '✡️ Добро пожаловать!',
-                'en': '✡️ Welcome!',
-                'he': '✡️ ברוכים הבאים!'
-            }
-            self.send_email(from_email, subject_map[language], dates_message)
-            user_states[from_email] = {'step': 'choosing_date', 'language': language}
-            return
+                # Не распознали язык - показываем help
+                texts = TEXTS['ru']
+                self.send_email(from_email, "📖 Help / Справка", texts['help'])
+                return
         
         # Выбор даты
         if state['step'] == 'choosing_date' and command in ['1', '2', '3']:
