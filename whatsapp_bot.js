@@ -11,68 +11,105 @@ const pool = new Pool({
 // Константы
 const MAX_PARTICIPANTS_PER_DATE = 290;
 
-// Тексты на разных языках
+// Тексты ТОЧНО как в Telegram боте (из languages.py)
 const TEXTS = {
     ru: {
-        welcome: '🕊️ Добро пожаловать в Aleph Bet Foresight Summit!\n\nВыберите язык / Choose language / בחר שפה:\n\n1️⃣ Русский (RU)\n2️⃣ English (EN)\n3️⃣ עברית (HE)',
-        greeting: '✡️ Добро пожаловать!\nПривет! Меня зовут Шломо\n\n🎉 Вы приглашены на Zoom-встречу с организационным комитетом, чтобы познакомиться с организаторами. А также Вы сможете выбрать наиболее подходящую для Вас задачу!\n\nКогда Вы хотели бы присоединиться к встрече в ZOOM? Сегодня, завтра или послезавтра?\n\n📅 Выберите удобную дату для встречи в Zoom:',
-        date_full: '⚠️ К сожалению, на эту дату все места заняты. Пожалуйста, выберите другую дату.',
-        confirmation: '🎫 Ваш ID: №{participant_id}\n📲 Уникальный код активации: {activation_code}\n\n⚠️ Для активации вашего ID необходимо принять участие во встрече в Zoom в выбранную вами дату: {date}\n\n📞 Встреча состоится в 19:00 по московскому времени\n🔗 Ссылка на Zoom будет отправлена вам в день встречи\n\n💡 Сохраните этот код! Он понадобится для активации вашего профиля на сайте.',
-        menu: '📱 Главное меню\n\n🎫 Ваш ID: №{participant_id}\n🔑 Ваш код активации: {activation_code}\n📅 Дата встречи: {date}\n\nДля изменения данных или получения инструкций - напишите нам!',
-        help: '📖 Помощь\n\nДоступные команды:\n• START - начать регистрацию\n• RU / EN / HE - выбрать язык\n• 1 / 2 / 3 - выбрать дату\n• MENU - главное меню\n• HELP - эта справка'
+        welcome: '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1 - Русский 🇷🇺\n2 - English 🇬🇧\n3 - עברית 🇮🇱',
+        greeting: '✡️ Поздравляем — вы со своим народом!\nШалом! Меня зовут Шломо\n\n🎉 Вы приглашены на Zoom-встречу с оргкомитетом для знакомства с организаторами. Также на ней, вы сможете выбрать ту миссию, которая Вам по душе!\n\nКогда Вы хотите присоединиться к ZOOM встрече? Сегодня, завтра или послезавтра?',
+        choose_date: '📅 Выберите удобную дату для Zoom-встречи:',
+        date_full: '❌ К сожалению, на эту дату все места заняты. Пожалуйста, выберите другую дату.',
+        meeting_confirmed: 'Отлично! Мы будем очень рады Вас видеть на нашей первой встрече!',
+        id_and_code: '🎫 Ваш ID: №{participant_id}\n📲 Уникальный код для активации ID: {activation_code}\n\n⚠️ Для активации Вашего ID необходимо присутствовать на Zoom-встрече.\nПосле активации можно выбрать форму участия в саммите.',
+        main_menu: '📱 Главное меню:\n\n🎫 Ваш ID: №{participant_id}\n🔑 Ваш код активации: {activation_code}\n📅 Дата встречи: {zoom_date}\n\nВы можете написать:\n• MENU - показать это меню\n• HELP - показать справку',
+        help: '📖 Справка\n\nДоступные команды:\n• START - начать регистрацию\n• 1 / 2 / 3 - выбрать язык или дату\n• MENU - главное меню\n• HELP - эта справка',
+        today: 'Сегодня',
+        tomorrow: 'Завтра',
+        day_after_tomorrow: 'Послезавтра'
     },
     en: {
-        welcome: '🕊️ Welcome to Aleph Bet Foresight Summit!\n\nChoose language / Выберите язык / בחר שפה:\n\n1️⃣ Русский (RU)\n2️⃣ English (EN)\n3️⃣ עברית (HE)',
-        greeting: '✡️ Greetings!\nHello! My name is Shlomo\n\n🎉 You are invited to a Zoom meeting with the organizing committee to get to know the organizers. You will also be able to choose the task that suits you best!\n\nWhen would you like to join the ZOOM meeting? Today, tomorrow or the day after tomorrow?\n\n📅 Choose a convenient date for the Zoom meeting:',
-        date_full: '⚠️ Unfortunately, all places for this date are taken. Please choose another date.',
-        confirmation: '🎫 Your ID: №{participant_id}\n📲 Unique activation code: {activation_code}\n\n⚠️ To activate your ID, you must participate in the Zoom meeting on your chosen date: {date}\n\n📞 The meeting will take place at 19:00 Moscow time\n🔗 The Zoom link will be sent to you on the day of the meeting\n\n💡 Save this code! You will need it to activate your profile on the website.',
-        menu: '📱 Main menu\n\n🎫 Your ID: №{participant_id}\n🔑 Your activation code: {activation_code}\n📅 Meeting date: {date}\n\nTo change data or get instructions - write to us!',
-        help: '📖 Help\n\nAvailable commands:\n• START - start registration\n• RU / EN / HE - choose language\n• 1 / 2 / 3 - choose date\n• MENU - main menu\n• HELP - this help'
+        welcome: '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1 - Русский 🇷🇺\n2 - English 🇬🇧\n3 - עברית 🇮🇱',
+        greeting: '✡️ Congratulations — you are with your people!\nShalom! My name is Shlomo\n\n🎉 You are invited to a Zoom meeting with the organizing committee to meet the organizers. You will also be able to choose the mission that suits you!\n\nWhen would you like to join the ZOOM meeting? Today, tomorrow, or the day after tomorrow?',
+        choose_date: '📅 Choose a convenient date for the Zoom meeting:',
+        date_full: '❌ Unfortunately, all places for this date are taken. Please choose another date.',
+        meeting_confirmed: 'Great! We will be very happy to see you at our first meeting!',
+        id_and_code: '🎫 Your ID: №{participant_id}\n📲 Unique activation code: {activation_code}\n\n⚠️ You must attend the Zoom meeting to activate your ID.\nAfter activation, you can choose your form of participation in the summit.',
+        main_menu: '📱 Main menu:\n\n🎫 Your ID: №{participant_id}\n🔑 Your activation code: {activation_code}\n📅 Meeting date: {zoom_date}\n\nYou can write:\n• MENU - show this menu\n• HELP - show help',
+        help: '📖 Help\n\nAvailable commands:\n• START - start registration\n• 1 / 2 / 3 - choose language or date\n• MENU - main menu\n• HELP - this help',
+        today: 'Today',
+        tomorrow: 'Tomorrow',
+        day_after_tomorrow: 'Day after tomorrow'
     },
     he: {
-        welcome: '🕊️ !ברוכים הבאים ל-Aleph Bet Foresight Summit\n\nבחר שפה / Choose language / Выберите язык:\n\n1️⃣ Русский (RU)\n2️⃣ English (EN)\n3️⃣ עברית (HE)',
-        greeting: '✡️ !ברכות - אתה עם העם שלך\n!שלום! שמי שלמה\n\n🎉 אתה מוזמן לפגישת Zoom עם הוועדה המארגנת כדי להכיר את המארגנים. כמו כן, תוכל לבחור את המשימה המתאימה לך ביותר!\n\nמתי תרצה להצטרף לפגישת ZOOM? היום, מחר או מחרתיים?\n\n📅 :בחר תאריך נוח לפגישת Zoom',
-        date_full: '⚠️ למרבה הצער, כל המקומות לתאריך זה תפוסים. אנא בחר תאריך אחר.',
-        confirmation: '🎫 ה-ID שלך: №{participant_id}\n📲 קוד הפעלה ייחודי: {activation_code}\n\n⚠️ להפעלת ה-ID שלך, עליך להשתתף בפגישת Zoom בתאריך שבחרת: {date}\n\n📞 הפגישה תתקיים בשעה 19:00 לפי שעון מוסקבה\n🔗 קישור ל-Zoom יישלח אליך ביום הפגישה\n\n💡 !שמור את הקוד הזה! תצטרך אותו כדי להפעיל את הפרופיל שלך באתר.',
-        menu: '📱 תפריט ראשי\n\n🎫 ה-ID שלך: №{participant_id}\n🔑 קוד ההפעלה שלך: {activation_code}\n📅 תאריך הפגישה: {date}\n\nאם אתה צריך לשנות נתונים או לקבל הוראות - כתוב לנו!',
-        help: '📖 עזרה\n\nפקודות זמינות:\n• START - התחל רישום\n• RU / EN / HE - בחר שפה\n• 1 / 2 / 3 - בחר תאריך\n• MENU - תפריט ראשי\n• HELP - עזרה זו'
+        welcome: '🕊️ Добро пожаловать! Welcome! ברוכים הבאים!\n\nПожалуйста, выберите язык / Please choose language / בחר שפה:\n\n1 - Русский 🇷🇺\n2 - English 🇬🇧\n3 - עברית 🇮🇱',
+        greeting: '✡️ !ברוכים הבאים — אתם עם העם שלכם\n!שלום! שמי שלמה\n\n🎉 אתם מוזמנים לפגישת Zoom עם הוועדה המארגנת כדי להכיר את המארגנים. תוכלו גם לבחור את המשימה המתאימה לכם!\n\nמתי תרצו להצטרף לפגישת ZOOM? היום, מחר או מחרתיים?',
+        choose_date: '📅 :בחרו תאריך נוח לפגישת Zoom',
+        date_full: '❌ למרבה הצער, כל המקומות לתאריך זה תפוסים. אנא בחרו תאריך אחר.',
+        meeting_confirmed: '!מצוין! נשמח מאוד לראותכם בפגישה הראשונה שלנו',
+        id_and_code: '🎫 ה-ID שלך: №{participant_id}\n📲 :קוד הפעלה ייחודי {activation_code}\n\n⚠️ עליך להשתתף בפגישת Zoom כדי להפעיל את ה-ID שלך.\n.לאחר ההפעלה, תוכל לבחור את צורת ההשתתפות שלך בפסגה',
+        main_menu: '📱 :תפריט ראשי\n\n🎫 ה-ID שלך: №{participant_id}\n🔑 קוד ההפעלה שלך: {activation_code}\n📅 תאריך הפגישה: {zoom_date}\n\n:אתה יכול לכתוב\n• MENU - הצג תפריט זה\n• HELP - הצג עזרה',
+        help: '📖 עזרה\n\n:פקודות זמינות\n• START - התחל רישום\n• 1 / 2 / 3 - בחר שפה או תאריך\n• MENU - תפריט ראשי\n• HELP - עזרה זו',
+        today: 'היום',
+        tomorrow: 'מחר',
+        day_after_tomorrow: 'מחרתיים'
     }
+};
+
+// Названия дней недели
+const WEEKDAY_NAMES = {
+    ru: ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+    en: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+    he: ['יום שני', 'יום שלישי', 'יום רביעי', 'יום חמישי', 'יום שישי', 'שבת', 'יום ראשון']
 };
 
 // Состояние пользователей (в памяти)
 const userStates = new Map();
 
-// Функция для генерации telegram_id из номера WhatsApp
+// Генерация telegram_id из номера WhatsApp
 function whatsappToTelegramId(phoneNumber) {
-    // Очищаем номер от символов
     const cleanNumber = phoneNumber.replace(/\D/g, '');
-    // Делаем отрицательным и уникальным (добавляем префикс -2)
     return -2000000000000000 + parseInt(cleanNumber.slice(-14));
 }
 
-// Получение следующих трёх дней
+// Получение следующих трёх дней (пропуск пятницы и субботы)
 function getNextThreeDays() {
     const days = [];
-    const dayNames = {
-        ru: ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'],
-        en: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        he: ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
-    };
+    let current = new Date();
     
-    for (let i = 0; i < 3; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() + i);
-        days.push({
-            date: date,
-            formatted: date.toISOString().split('T')[0],
-            names: {
-                ru: dayNames.ru[date.getDay()],
-                en: dayNames.en[date.getDay()],
-                he: dayNames.he[date.getDay()]
-            }
-        });
+    while (days.length < 3) {
+        const dayOfWeek = current.getDay();
+        // Пропускаем пятницу (5) и субботу (6)
+        if (dayOfWeek !== 5 && dayOfWeek !== 6) {
+            days.push(new Date(current));
+        }
+        current.setDate(current.getDate() + 1);
     }
+    
     return days;
+}
+
+// Форматирование даты для отображения
+function formatDate(date) {
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}.${month}.${year}`;
+}
+
+// Форматирование даты для базы данных (YYYY-MM-DD)
+function formatDateForDB(date) {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
+
+// Получение дня недели
+function getWeekdayName(date, language) {
+    const dayIndex = date.getDay();
+    // В JavaScript воскресенье = 0, понедельник = 1, ... суббота = 6
+    // Нужно сдвинуть, чтобы понедельник = 0
+    const adjustedIndex = dayIndex === 0 ? 6 : dayIndex - 1;
+    return WEEKDAY_NAMES[language][adjustedIndex];
 }
 
 // Получение количества участников на дату
@@ -92,11 +129,9 @@ async function getParticipantsCount(date) {
 // Создание пользователя в базе
 async function createUser(telegramId, username, firstName, language, phoneNumber) {
     try {
-        // Генерируем participant_id и activation_code
         const participantId = await getNextParticipantId();
         const activationCode = Math.floor(100000 + Math.random() * 900000).toString();
         
-        // Сохраняем номер WhatsApp в username и email для единообразия
         await pool.query(
             `INSERT INTO participants 
             (telegram_id, username, first_name, participant_type, language, participant_id, activation_code, email, is_activated, registration_date) 
@@ -165,21 +200,17 @@ async function updateZoomDate(telegramId, date) {
 }
 
 // Отправка списка дат
-async function sendDatesList(phoneNumber, language) {
+function getDatesMessage(language) {
     const dates = getNextThreeDays();
     const texts = TEXTS[language];
+    const relative = [texts.today, texts.tomorrow, texts.day_after_tomorrow];
     
-    let message = texts.greeting + '\n\n';
+    let message = texts.greeting + '\n\n' + texts.choose_date + '\n\n';
     
     for (let i = 0; i < dates.length; i++) {
-        const count = await getParticipantsCount(dates[i].formatted);
-        const dayLabel = i === 0 ? 
-            (language === 'ru' ? 'Сегодня' : language === 'en' ? 'Today' : 'היום') :
-            i === 1 ?
-            (language === 'ru' ? 'Завтра' : language === 'en' ? 'Tomorrow' : 'מחר') :
-            (language === 'ru' ? 'Послезавтра' : language === 'en' ? 'Day after tomorrow' : 'מחרתיים');
-        
-        message += `${i + 1}️⃣ ${dayLabel} (${dates[i].names[language]}) - ${dates[i].date.toLocaleDateString('ru-RU')} (${count}/${MAX_PARTICIPANTS_PER_DATE})\n`;
+        const weekday = getWeekdayName(dates[i], language);
+        const formatted = formatDate(dates[i]);
+        message += `${i + 1} - ${relative[i]} (${weekday}) - ${formatted}\n`;
     }
     
     return message;
@@ -230,27 +261,38 @@ function initWhatsAppBot(qrCallback, readyCallback) {
             const phoneNumber = msg.from;
             const body = msg.body.trim();
             
+            if (!body) return; // Игнорируем пустые сообщения
+            
             const telegramId = whatsappToTelegramId(phoneNumber);
             let user = await getUser(telegramId);
             let state = userStates.get(phoneNumber) || { step: 'start' };
             const bodyLower = body.toLowerCase().trim();
             
-            console.log(`[WHATSAPP] Message from ${phoneNumber}: ${body}`);
-            console.log(`[WHATSAPP] User exists: ${!!user}, State: ${state.step}, Command: ${bodyLower}`);
+            console.log(`[WHATSAPP] From: ${phoneNumber}, Message: "${body}", State: ${state.step}, User exists: ${!!user}`);
             
-            // Команда START - только явная команда
+            // Команда START
             if (bodyLower === 'start' || bodyLower === 'старт') {
-                const texts = TEXTS.ru;
-                await msg.reply(texts.welcome);
-                userStates.set(phoneNumber, { step: 'choosing_language' });
-                console.log(`[WHATSAPP] START command, set state to choosing_language`);
+                if (user) {
+                    // Если пользователь уже есть - показываем меню
+                    const texts = TEXTS[user.language || 'ru'];
+                    const menuText = texts.main_menu
+                        .replace('{participant_id}', user.participant_id)
+                        .replace('{activation_code}', user.activation_code)
+                        .replace('{zoom_date}', user.zoom_date ? formatDate(new Date(user.zoom_date)) : 'не выбрана');
+                    await msg.reply(menuText);
+                    userStates.set(phoneNumber, { step: 'registered', language: user.language });
+                } else {
+                    // Новый пользователь - выбор языка
+                    await msg.reply(TEXTS.ru.welcome);
+                    userStates.set(phoneNumber, { step: 'choosing_language' });
+                }
+                console.log(`[WHATSAPP] START processed`);
                 return;
             }
             
-            // Если пользователя нет и это НЕ START - предлагаем начать
+            // Если пользователя нет и это НЕ START - показываем welcome
             if (!user && state.step === 'start') {
-                const texts = TEXTS.ru;
-                await msg.reply(texts.welcome);
+                await msg.reply(TEXTS.ru.welcome);
                 userStates.set(phoneNumber, { step: 'choosing_language' });
                 console.log(`[WHATSAPP] New user, showing welcome`);
                 return;
@@ -275,42 +317,39 @@ function initWhatsAppBot(qrCallback, readyCallback) {
                         // Создаем нового пользователя
                         const contact = await msg.getContact();
                         const firstName = contact.pushname || contact.name || phoneNumber;
-                        console.log(`[WHATSAPP] Creating new user: ${firstName}`);
-                        const result = await createUser(telegramId, phoneNumber, firstName, language, phoneNumber);
+                        await createUser(telegramId, phoneNumber, firstName, language, phoneNumber);
                         user = await getUser(telegramId);
-                        console.log(`[WHATSAPP] User created with ID: ${user?.participant_id}`);
                     } else {
                         await updateLanguage(telegramId, language);
                         user.language = language;
-                        console.log(`[WHATSAPP] Language updated for existing user`);
                     }
                     
-                    const datesMessage = await sendDatesList(phoneNumber, language);
+                    // Отправляем список дат
+                    const datesMessage = getDatesMessage(language);
                     await msg.reply(datesMessage);
                     userStates.set(phoneNumber, { step: 'choosing_date', language });
-                    console.log(`[WHATSAPP] Dates sent, state set to choosing_date`);
+                    console.log(`[WHATSAPP] Dates sent`);
                     return;
                 } else {
-                    // Не распознали язык - показываем help
-                    const texts = TEXTS.ru;
-                    await msg.reply(texts.help);
+                    // Не распознали язык
+                    await msg.reply(TEXTS.ru.help);
                     return;
                 }
             }
             
-            // Выбор даты
+            // Выбор даты - ТОЛЬКО если state.step === 'choosing_date'
             if (state.step === 'choosing_date' && ['1', '2', '3'].includes(body)) {
                 const dateIndex = parseInt(body) - 1;
                 const dates = getNextThreeDays();
                 
                 if (dateIndex >= 0 && dateIndex < dates.length) {
-                    const selectedDate = dates[dateIndex].formatted;
+                    const selectedDate = formatDateForDB(dates[dateIndex]);
                     const count = await getParticipantsCount(selectedDate);
                     
                     if (count >= MAX_PARTICIPANTS_PER_DATE) {
                         const texts = TEXTS[user.language || 'ru'];
                         await msg.reply(texts.date_full);
-                        const datesMessage = await sendDatesList(phoneNumber, user.language || 'ru');
+                        const datesMessage = getDatesMessage(user.language || 'ru');
                         await msg.reply(datesMessage);
                         return;
                     }
@@ -319,20 +358,22 @@ function initWhatsAppBot(qrCallback, readyCallback) {
                     user = await getUser(telegramId);
                     
                     const texts = TEXTS[user.language || 'ru'];
-                    const confirmation = texts.confirmation
+                    
+                    // Отправляем ID и код
+                    const idMessage = texts.id_and_code
+                        .replace('{participant_id}', user.participant_id)
+                        .replace('{activation_code}', user.activation_code);
+                    await msg.reply(idMessage);
+                    
+                    // Отправляем меню
+                    const menuText = texts.main_menu
                         .replace('{participant_id}', user.participant_id)
                         .replace('{activation_code}', user.activation_code)
-                        .replace('{date}', selectedDate);
-                    
-                    await msg.reply(confirmation);
-                    
-                    const menuText = texts.menu
-                        .replace('{participant_id}', user.participant_id)
-                        .replace('{activation_code}', user.activation_code)
-                        .replace('{date}', user.zoom_date || 'не выбрана');
-                    
+                        .replace('{zoom_date}', formatDate(dates[dateIndex]));
                     await msg.reply(menuText);
+                    
                     userStates.set(phoneNumber, { step: 'registered', language: user.language });
+                    console.log(`[WHATSAPP] Date selected: ${selectedDate}`);
                     return;
                 }
             }
@@ -341,10 +382,10 @@ function initWhatsAppBot(qrCallback, readyCallback) {
             if (bodyLower === 'menu' || bodyLower === 'меню' || bodyLower.includes('תפריט')) {
                 if (user) {
                     const texts = TEXTS[user.language || 'ru'];
-                    const menuText = texts.menu
+                    const menuText = texts.main_menu
                         .replace('{participant_id}', user.participant_id)
                         .replace('{activation_code}', user.activation_code)
-                        .replace('{date}', user.zoom_date || 'не выбрана');
+                        .replace('{zoom_date}', user.zoom_date ? formatDate(new Date(user.zoom_date)) : 'не выбрана');
                     await msg.reply(menuText);
                 } else {
                     await msg.reply(TEXTS.ru.welcome);
@@ -360,7 +401,7 @@ function initWhatsAppBot(qrCallback, readyCallback) {
                 return;
             }
             
-            // Если не распознали команду
+            // Если ничего не распознали - показываем help
             const texts = TEXTS[user ? user.language : 'ru'] || TEXTS.ru;
             await msg.reply(texts.help);
             
@@ -374,4 +415,3 @@ function initWhatsAppBot(qrCallback, readyCallback) {
 }
 
 module.exports = { initWhatsAppBot, pool };
-
