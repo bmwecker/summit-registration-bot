@@ -173,7 +173,7 @@ async def language_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     
     if existing_user:
         db.set_user_language(telegram_id, language)
-    await query.edit_message_text(get_text(language, 'language_changed'))
+        await query.edit_message_text(get_text(language, 'language_changed'))
         await show_main_menu_new_message(update, context, language)
         return SHOWING_MENU
     
@@ -469,16 +469,16 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
     
     # Изменить язык
     elif action == 'change_language':
-        keyboard = [
+    keyboard = [
             [InlineKeyboardButton(LANGUAGE_NAMES['ru'], callback_data='lang_ru')],
             [InlineKeyboardButton(LANGUAGE_NAMES['en'], callback_data='lang_en')],
             [InlineKeyboardButton(LANGUAGE_NAMES['he'], callback_data='lang_he')]
-        ]
-        reply_markup = InlineKeyboardMarkup(keyboard)
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
         await query.edit_message_text(
             TEXTS['ru']['welcome_choose_lang'],
-            reply_markup=reply_markup
-        )
+        reply_markup=reply_markup
+    )
         return CHOOSING_LANGUAGE
     
     # Назад в меню
