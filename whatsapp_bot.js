@@ -1,4 +1,4 @@
-const { Client, LocalAuth } = require('whatsapp-web.js');
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 const { Pool } = require('pg');
 require('dotenv').config();
 
@@ -10,6 +10,13 @@ const pool = new Pool({
 
 // Константы
 const MAX_PARTICIPANTS_PER_DATE = 290;
+
+// Видео для разных языков (Dropbox с dl=1 для прямого скачивания)
+const WELCOME_VIDEOS = {
+    ru: 'https://www.dropbox.com/scl/fi/044kdmis462chkfy7kpcn/4.mp4?rlkey=wyap66tnu3j3i8yuvp8n7wtid&st=84gh8wbh&dl=1',
+    he: 'https://www.dropbox.com/scl/fi/044kdmis462chkfy7kpcn/4.mp4?rlkey=wyap66tnu3j3i8yuvp8n7wtid&st=lrigyksz&dl=1',
+    en: 'https://www.dropbox.com/scl/fi/ma2ha4gu39l95o59519u8/.mp4?rlkey=594fye1i0p8rabbzmm6mcz5yt&st=dincgr4p&dl=1'
+};
 
 // Тексты ТОЧНО как в Telegram боте (из languages.py)
 const TEXTS = {
@@ -371,6 +378,19 @@ function initWhatsAppBot(qrCallback, readyCallback) {
                     user = await getUser(telegramId);
                     
                     const texts = TEXTS[user.language || 'ru'];
+                    
+                    // Отправляем подтверждение
+                    await msg.reply(texts.meeting_confirmed);
+                    
+                    // Отправляем видео с приветствием
+                    const videoUrl = WELCOME_VIDEOS[user.language] || WELCOME_VIDEOS['ru'];
+                    try {
+                        const media = await MessageMedia.fromUrl(videoUrl);
+                        await client.sendMessage(msg.from, media, { caption: texts.meeting_confirmed });
+                        console.log(`[WHATSAPP] Welcome video sent for language: ${user.language}`);
+                    } catch (error) {
+                        console.error(`[WHATSAPP] Failed to send video: ${error}`);
+                    }
                     
                     // Отправляем ID и код
                     const idMessage = texts.id_and_code

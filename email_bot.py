@@ -28,6 +28,13 @@ IMAP_PASSWORD = os.getenv("IMAP_PASSWORD", "")
 # Константы
 MAX_PARTICIPANTS_PER_DATE = 290
 
+# Видео для разных языков (Dropbox с dl=1 для прямого скачивания)
+WELCOME_VIDEOS = {
+    'ru': 'https://www.dropbox.com/scl/fi/044kdmis462chkfy7kpcn/4.mp4?rlkey=wyap66tnu3j3i8yuvp8n7wtid&st=84gh8wbh&dl=1',
+    'he': 'https://www.dropbox.com/scl/fi/044kdmis462chkfy7kpcn/4.mp4?rlkey=wyap66tnu3j3i8yuvp8n7wtid&st=lrigyksz&dl=1',
+    'en': 'https://www.dropbox.com/scl/fi/ma2ha4gu39l95o59519u8/.mp4?rlkey=594fye1i0p8rabbzmm6mcz5yt&st=dincgr4p&dl=1'
+}
+
 # Тексты ТОЧНО как в WhatsApp боте
 TEXTS = {
     'ru': {
@@ -400,8 +407,18 @@ class EmailBot:
                 db.update_zoom_date(telegram_id, selected_date)
                 user = db.get_user(telegram_id)
                 
-                # Отправляем подтверждение с ID и кодом
-                confirmation = texts['meeting_confirmed'] + "\n\n" + texts['id_and_code'].replace('{participant_id}', str(user['participant_id'])).replace('{activation_code}', user['activation_code'])
+                # Получаем ссылку на видео для языка пользователя
+                video_url = WELCOME_VIDEOS.get(user['language'], WELCOME_VIDEOS['ru'])
+                video_link_text = {
+                    'ru': f'\n\n🎬 Посмотрите приветственное видео:\n{video_url}\n',
+                    'en': f'\n\n🎬 Watch the welcome video:\n{video_url}\n',
+                    'he': f'\n\n🎬 צפה בסרטון ברוכים הבאים:\n{video_url}\n'
+                }
+                
+                # Отправляем подтверждение с видео, ID и кодом
+                confirmation = (texts['meeting_confirmed'] + 
+                               video_link_text[user['language']] + "\n" +
+                               texts['id_and_code'].replace('{participant_id}', str(user['participant_id'])).replace('{activation_code}', user['activation_code']))
                 subject_map = {
                     'ru': '🎫 Регистрация подтверждена!',
                     'en': '🎫 Registration confirmed!',

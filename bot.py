@@ -48,6 +48,13 @@ CHOOSING_LANGUAGE, CHOOSING_DATE, SHOWING_MENU = range(3)
 
 # Константы
 LOGO_PATH = "aleph-beth.png"
+
+# Видео для разных языков (Dropbox с dl=1 для прямого скачивания)
+WELCOME_VIDEOS = {
+    'ru': 'https://www.dropbox.com/scl/fi/044kdmis462chkfy7kpcn/4.mp4?rlkey=wyap66tnu3j3i8yuvp8n7wtid&st=84gh8wbh&dl=1',
+    'he': 'https://www.dropbox.com/scl/fi/044kdmis462chkfy7kpcn/4.mp4?rlkey=wyap66tnu3j3i8yuvp8n7wtid&st=lrigyksz&dl=1',
+    'en': 'https://www.dropbox.com/scl/fi/ma2ha4gu39l95o59519u8/.mp4?rlkey=594fye1i0p8rabbzmm6mcz5yt&st=dincgr4p&dl=1'
+}
 MAX_PARTICIPANTS_PER_DATE = 290
 ADMIN_IDS = [386965305]  # Ваш ID
 
@@ -282,6 +289,18 @@ async def date_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         
         # Подтверждение
         await query.edit_message_text(get_text(language, 'meeting_confirmed'))
+        
+        # Отправляем видео с приветствием
+        video_url = WELCOME_VIDEOS.get(language, WELCOME_VIDEOS['ru'])
+        try:
+            await context.bot.send_video(
+                chat_id=update.effective_chat.id,
+                video=video_url,
+                caption=get_text(language, 'meeting_confirmed')
+            )
+            logger.info(f"Welcome video sent for language: {language}")
+        except Exception as e:
+            logger.error(f"Failed to send video: {e}")
         
         # Отправляем ID и код
         id_text = get_text(
