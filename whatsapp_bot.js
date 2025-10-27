@@ -18,6 +18,13 @@ const WELCOME_VIDEOS = {
     en: 'https://www.dropbox.com/scl/fi/ma2ha4gu39l95o59519u8/.mp4?rlkey=594fye1i0p8rabbzmm6mcz5yt&st=dincgr4p&dl=1'
 };
 
+// Ссылки на страницы "Система лидерства Торы" для каждого языка
+const TORAH_LEADERSHIP_PAGES = {
+    ru: 'https://liderstvo-tory-diqyh3c.gamma.site/',
+    en: 'https://torovoe-liderstvo-wbc7m7i.gamma.site/',
+    he: 'https://tora-i-tsifrovaya-epokha-h98jv9r.gamma.site/'
+};
+
 // Тексты ТОЧНО как в Telegram боте (из languages.py)
 const TEXTS = {
     ru: {
@@ -27,7 +34,9 @@ const TEXTS = {
         date_full: '❌ К сожалению, на эту дату все места заняты. Пожалуйста, выберите другую дату.',
         meeting_confirmed: 'Отлично! Мы будем очень рады Вас видеть на нашей первой встрече!',
         id_and_code: '🎫 Ваш ID: №{participant_id}\n📲 Уникальный код для активации ID: {activation_code}\n\n⚠️ Для активации Вашего ID необходимо присутствовать на Zoom-встрече.\nПосле активации можно выбрать форму участия в саммите.',
-        main_menu: '📱 Главное меню:\n\n1️⃣ Напомнить номер ID\n2️⃣ Напомнить код активации\n3️⃣ Напомнить дату встречи\n4️⃣ Перенести встречу\n5️⃣ Как активировать ID?\n6️⃣ Изменить язык\n\n_Отправьте номер (1-6) или команду (MENU, HELP)_',
+        main_menu: '📱 Главное меню:\n\n1️⃣ Напомнить номер ID\n2️⃣ Напомнить код активации\n3️⃣ Напомнить дату встречи\n4️⃣ Перенести встречу\n5️⃣ Как активировать ID?\n6️⃣ Изменить язык\n7️⃣ Дополнительные материалы\n\n_Отправьте номер (1-7) или команду (MENU, HELP)_',
+        torah_leadership_intro: '🌐 **Система лидерства Торы в цифровую эпоху**\n\nПознакомьтесь с моделью управления, данной Б-гом через Итро Моше Рабейну:',
+        materials_menu: '📚 **Дополнительные материалы:**\n\nОтправьте номер:\n1️⃣ Видео\n2️⃣ Система лидерства Торы\n3️⃣ Вернуться в меню',
         your_id: '📜 Ваш ID: №{participant_id}',
         your_code: '🔑 Ваш код активации: {activation_code}',
         your_date: '📅 Ваша дата Zoom-встречи: {zoom_date}',
@@ -44,7 +53,9 @@ const TEXTS = {
         date_full: '❌ Unfortunately, all places for this date are taken. Please choose another date.',
         meeting_confirmed: 'Great! We will be very happy to see you at our first meeting!',
         id_and_code: '🎫 Your ID: №{participant_id}\n📲 Unique activation code: {activation_code}\n\n⚠️ You must attend the Zoom meeting to activate your ID.\nAfter activation, you can choose your form of participation in the summit.',
-        main_menu: '📱 Main menu:\n\n1️⃣ Remind ID number\n2️⃣ Remind activation code\n3️⃣ Remind meeting date\n4️⃣ Reschedule meeting\n5️⃣ How to activate ID?\n6️⃣ Change language\n\n_Send number (1-6) or command (MENU, HELP)_',
+        main_menu: '📱 Main menu:\n\n1️⃣ Remind ID number\n2️⃣ Remind activation code\n3️⃣ Remind meeting date\n4️⃣ Reschedule meeting\n5️⃣ How to activate ID?\n6️⃣ Change language\n7️⃣ Additional Materials\n\n_Send number (1-7) or command (MENU, HELP)_',
+        torah_leadership_intro: '🌐 **Torah Leadership System in the Digital Age**\n\nDiscover the management model given by G-d through Yitro to Moshe Rabbeinu:',
+        materials_menu: '📚 **Additional Materials:**\n\nSend number:\n1️⃣ Video\n2️⃣ Torah Leadership System\n3️⃣ Back to menu',
         your_id: '📜 Your ID: №{participant_id}',
         your_code: '🔑 Your activation code: {activation_code}',
         your_date: '📅 Your Zoom meeting date: {zoom_date}',
@@ -61,7 +72,9 @@ const TEXTS = {
         date_full: '❌ למרבה הצער, כל המקומות לתאריך זה תפוסים. אנא בחרו תאריך אחר.',
         meeting_confirmed: '!מצוין! נשמח מאוד לראותכם בפגישה הראשונה שלנו',
         id_and_code: '🎫 ה-ID שלך: №{participant_id}\n📲 :קוד הפעלה ייחודי {activation_code}\n\n⚠️ עליך להשתתף בפגישת Zoom כדי להפעיל את ה-ID שלך.\n.לאחר ההפעלה, תוכל לבחור את צורת ההשתתפות שלך בפסגה',
-        main_menu: '📱 :תפריט ראשי\n\n1️⃣ הזכר מספר ID\n2️⃣ הזכר קוד הפעלה\n3️⃣ הזכר תאריך פגישה\n4️⃣ קבע מחדש פגישה\n5️⃣ ?כיצד להפעיל ID\n6️⃣ שנה שפה\n\n_(MENU ,HELP) שלח מספר (1-6) או פקודה_',
+        main_menu: '📱 :תפריט ראשי\n\n1️⃣ הזכר מספר ID\n2️⃣ הזכר קוד הפעלה\n3️⃣ הזכר תאריך פגישה\n4️⃣ קבע מחדש פגישה\n5️⃣ ?כיצד להפעיל ID\n6️⃣ שנה שפה\n7️⃣ חומרים נוספים\n\n_(MENU ,HELP) שלח מספר (1-7) או פקודה_',
+        torah_leadership_intro: '🌐 **מערכת המנהיגות של התורה בעידן הדיגיטלי**\n\nהכר את מודל הניהול שניתן על ידי הקב"ה דרך יתרו למשה רבינו:',
+        materials_menu: '📚 **חומרים נוספים:**\n\n:שלח מספר\n1️⃣ וידאו\n2️⃣ מערכת המנהיגות של התורה\n3️⃣ חזור לתפריט',
         your_id: '📜 ה-ID שלך: №{participant_id}',
         your_code: '🔑 קוד ההפעלה שלך: {activation_code}',
         your_date: '📅 תאריך פגישת Zoom שלך: {zoom_date}',
@@ -379,24 +392,29 @@ function initWhatsAppBot(qrCallback, readyCallback) {
                     
                     const texts = TEXTS[user.language || 'ru'];
                     
-                    // Отправляем подтверждение
+                    // 1. Отправляем подтверждение
                     await msg.reply(texts.meeting_confirmed);
                     
-                    // Отправляем видео с приветствием
+                    // 2. Отправляем ID и код
+                    const idMessage = texts.id_and_code
+                        .replace('{participant_id}', user.participant_id)
+                        .replace('{activation_code}', user.activation_code);
+                    await msg.reply(idMessage);
+                    
+                    // 3. Отправляем видео
                     const videoUrl = WELCOME_VIDEOS[user.language] || WELCOME_VIDEOS['ru'];
                     try {
                         const media = await MessageMedia.fromUrl(videoUrl);
-                        await client.sendMessage(msg.from, media, { caption: texts.meeting_confirmed });
+                        await client.sendMessage(msg.from, media);
                         console.log(`[WHATSAPP] Welcome video sent for language: ${user.language}`);
                     } catch (error) {
                         console.error(`[WHATSAPP] Failed to send video: ${error}`);
                     }
                     
-                    // Отправляем ID и код
-                    const idMessage = texts.id_and_code
-                        .replace('{participant_id}', user.participant_id)
-                        .replace('{activation_code}', user.activation_code);
-                    await msg.reply(idMessage);
+                    // 4. Отправляем ссылку на страницу "Система лидерства Торы"
+                    const torahPageUrl = TORAH_LEADERSHIP_PAGES[user.language] || TORAH_LEADERSHIP_PAGES['ru'];
+                    const torahIntro = texts.torah_leadership_intro;
+                    await msg.reply(`${torahIntro}\n\n${torahPageUrl}`);
                     
                     // Отправляем меню
                     const menuText = texts.main_menu
@@ -412,7 +430,7 @@ function initWhatsAppBot(qrCallback, readyCallback) {
             }
             
             // Обработка меню (пункты 1-6) - только для зарегистрированных
-            if (user && state.step === 'registered' && ['1', '2', '3', '4', '5', '6'].includes(body)) {
+            if (user && state.step === 'registered' && ['1', '2', '3', '4', '5', '6', '7'].includes(body)) {
                 const texts = TEXTS[user.language || 'ru'];
                 const menuChoice = parseInt(body);
                 
@@ -462,6 +480,61 @@ function initWhatsAppBot(qrCallback, readyCallback) {
                     await msg.reply(TEXTS.ru.welcome);
                     userStates.set(phoneNumber, { step: 'choosing_language' });
                     console.log(`[WHATSAPP] Changing language`);
+                    return;
+                }
+                
+                if (menuChoice === 7) {
+                    // Дополнительные материалы
+                    await msg.reply(texts.materials_menu);
+                    userStates.set(phoneNumber, { step: 'materials_menu', language: user.language });
+                    console.log(`[WHATSAPP] Showing materials menu`);
+                    return;
+                }
+            }
+            
+            // Обработка подменю "Дополнительные материалы"
+            if (user && state.step === 'materials_menu' && ['1', '2', '3'].includes(body)) {
+                const texts = TEXTS[user.language || 'ru'];
+                const materialsChoice = parseInt(body);
+                
+                if (materialsChoice === 1) {
+                    // Показать видео
+                    const videoUrl = WELCOME_VIDEOS[user.language] || WELCOME_VIDEOS['ru'];
+                    try {
+                        const media = await MessageMedia.fromUrl(videoUrl);
+                        await client.sendMessage(msg.from, media);
+                        console.log(`[WHATSAPP] Sent video from materials menu`);
+                    } catch (error) {
+                        console.error(`[WHATSAPP] Failed to send video: ${error}`);
+                    }
+                    
+                    // Возвращаем в главное меню
+                    const menuText = sendMainMenu(user, texts);
+                    await msg.reply(menuText);
+                    userStates.set(phoneNumber, { step: 'registered', language: user.language });
+                    return;
+                }
+                
+                if (materialsChoice === 2) {
+                    // Показать страницу Торы
+                    const torahPageUrl = TORAH_LEADERSHIP_PAGES[user.language] || TORAH_LEADERSHIP_PAGES['ru'];
+                    const torahIntro = texts.torah_leadership_intro;
+                    await msg.reply(`${torahIntro}\n\n${torahPageUrl}`);
+                    console.log(`[WHATSAPP] Sent Torah page from materials menu`);
+                    
+                    // Возвращаем в главное меню
+                    const menuText = sendMainMenu(user, texts);
+                    await msg.reply(menuText);
+                    userStates.set(phoneNumber, { step: 'registered', language: user.language });
+                    return;
+                }
+                
+                if (materialsChoice === 3) {
+                    // Вернуться в меню
+                    const menuText = sendMainMenu(user, texts);
+                    await msg.reply(menuText);
+                    userStates.set(phoneNumber, { step: 'registered', language: user.language });
+                    console.log(`[WHATSAPP] Back to main menu from materials`);
                     return;
                 }
             }

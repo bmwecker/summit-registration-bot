@@ -48,8 +48,11 @@ TEXTS = {
         'btn_reschedule': '🔄 Перенести встречу',
         'btn_change_language': '🌍 Изменить язык',
         'btn_how_activate': '❓ Как активировать ID?',
+        'btn_materials': '📚 Дополнительные материалы',
         'btn_back_to_menu': '🔙 Меню',
         'btn_instruction': '📖 Инструкция',
+        'btn_video': '🎬 Видео',
+        'btn_torah_page': '🌐 Система лидерства Торы',
         
         # Напоминания
         'your_id': '📜 Ваш ID: №{participant_id}',
@@ -141,6 +144,10 @@ TEXTS = {
 • Если в комнате много людей, держите микрофон выключенным, когда не говорите.
 • Если нужно отправить код сразу после захода — то заранее сохраните код в заметках телефона/компьютера, чтобы легко скопировать и вставить.''',
         
+        # Ссылки на материалы
+        'torah_leadership_intro': '🌐 **Система лидерства Торы в цифровую эпоху**\n\nПознакомьтесь с моделью управления, данной Б-гом через Итро Моше Рабейну:',
+        'materials_menu': '📚 **Дополнительные материалы:**\n\nВыберите, что хотите посмотреть:',
+        
         # Другое
         'not_registered': 'Вы еще не зарегистрированы. Используйте /start для регистрации.',
         'language_changed': '✅ Язык изменён на русский',
@@ -190,8 +197,11 @@ TEXTS = {
         'btn_reschedule': '🔄 Reschedule meeting',
         'btn_change_language': '🌍 Change language',
         'btn_how_activate': '❓ How to activate ID?',
+        'btn_materials': '📚 Additional Materials',
         'btn_back_to_menu': '🔙 Menu',
         'btn_instruction': '📖 Instruction',
+        'btn_video': '🎬 Video',
+        'btn_torah_page': '🌐 Torah Leadership System',
         
         # Reminders
         'your_id': '📜 Your ID: №{participant_id}',
@@ -267,6 +277,10 @@ TEXTS = {
 • If there are many people, keep microphone muted when not speaking.
 • Save your code in phone/computer notes beforehand for easy copying.''',
         
+        # Materials links
+        'torah_leadership_intro': '🌐 **Torah Leadership System in the Digital Age**\n\nDiscover the management model given by G-d through Yitro to Moshe Rabbeinu:',
+        'materials_menu': '📚 **Additional Materials:**\n\nChoose what you want to see:',
+        
         # Other
         'not_registered': 'You are not registered yet. Use /start to register.',
         'language_changed': '✅ Language changed to English',
@@ -316,8 +330,11 @@ TEXTS = {
         'btn_reschedule': '🔄 לשנות תאריך פגישה',
         'btn_change_language': '🌍 לשנות שפה',
         'btn_how_activate': '❓ איך להפעיל ID?',
+        'btn_materials': '📚 חומרים נוספים',
         'btn_back_to_menu': '🔙 תפריט',
         'btn_instruction': '📖 הוראות',
+        'btn_video': '🎬 וידאו',
+        'btn_torah_page': '🌐 מערכת המנהיגות של התורה',
         
         # Reminders
         'your_id': '📜 ה-ID שלך: №{participant_id}',
@@ -380,6 +397,10 @@ TEXTS = {
 • התחבר 5–10 דקות לפני ההתחלה כדי לבדוק שמע ומצלמה.
 • אם יש הרבה אנשים, שמור על המיקרופון כבוי כשלא מדברים.
 • שמור את הקוד שלך בהערות הטלפון/מחשב מראש להעתקה קלה.''',
+        
+        # Materials links
+        'torah_leadership_intro': '🌐 **מערכת המנהיגות של התורה בעידן הדיגיטלי**\n\nהכר את מודל הניהול שניתן על ידי הקב"ה דרך יתרו למשה רבינו:',
+        'materials_menu': '📚 **חומרים נוספים:**\n\nבחר מה אתה רוצה לראות:',
         
         # Other
         'not_registered': 'אתה עדיין לא רשום. השתמש ב-/start כדי להירשם.',

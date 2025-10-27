@@ -35,6 +35,13 @@ WELCOME_VIDEOS = {
     'en': 'https://www.dropbox.com/scl/fi/ma2ha4gu39l95o59519u8/.mp4?rlkey=594fye1i0p8rabbzmm6mcz5yt&st=dincgr4p&dl=1'
 }
 
+# Ссылки на страницы "Система лидерства Торы" для каждого языка
+TORAH_LEADERSHIP_PAGES = {
+    'ru': 'https://liderstvo-tory-diqyh3c.gamma.site/',
+    'en': 'https://torovoe-liderstvo-wbc7m7i.gamma.site/',
+    'he': 'https://tora-i-tsifrovaya-epokha-h98jv9r.gamma.site/'
+}
+
 # Тексты ТОЧНО как в WhatsApp боте
 TEXTS = {
     'ru': {
@@ -44,7 +51,9 @@ TEXTS = {
         'date_full': '❌ К сожалению, на эту дату все места заняты. Пожалуйста, выберите другую дату.',
         'meeting_confirmed': 'Отлично! Мы будем очень рады Вас видеть на нашей первой встрече!',
         'id_and_code': '🎫 Ваш ID: №{participant_id}\n📲 Уникальный код для активации ID: {activation_code}\n\n⚠️ Для активации Вашего ID необходимо присутствовать на Zoom-встрече.\nПосле активации можно выбрать форму участия в саммите.',
-        'main_menu': '📱 Главное меню:\n\n1️⃣ Напомнить номер ID\n2️⃣ Напомнить код активации\n3️⃣ Напомнить дату встречи\n4️⃣ Перенести встречу\n5️⃣ Как активировать ID?\n6️⃣ Изменить язык\n\n_Ответьте номером (1-6) или командой (MENU, HELP)_',
+        'main_menu': '📱 Главное меню:\n\n1️⃣ Напомнить номер ID\n2️⃣ Напомнить код активации\n3️⃣ Напомнить дату встречи\n4️⃣ Перенести встречу\n5️⃣ Как активировать ID?\n6️⃣ Изменить язык\n7️⃣ Дополнительные материалы\n\n_Ответьте номером (1-7) или командой (MENU, HELP)_',
+        'torah_leadership_intro': '🌐 **Система лидерства Торы в цифровую эпоху**\n\nПознакомьтесь с моделью управления, данной Б-гом через Итро Моше Рабейну:',
+        'materials_menu': '📚 **Дополнительные материалы:**\n\nОтветьте номером:\n1️⃣ Видео\n2️⃣ Система лидерства Торы\n3️⃣ Вернуться в меню',
         'your_id': '📜 Ваш ID: №{participant_id}',
         'your_code': '🔑 Ваш код активации: {activation_code}',
         'your_date': '📅 Ваша дата Zoom-встречи: {zoom_date}',
@@ -61,7 +70,9 @@ TEXTS = {
         'date_full': '❌ Unfortunately, all places for this date are taken. Please choose another date.',
         'meeting_confirmed': 'Great! We will be very happy to see you at our first meeting!',
         'id_and_code': '🎫 Your ID: №{participant_id}\n📲 Unique activation code: {activation_code}\n\n⚠️ You must attend the Zoom meeting to activate your ID.\nAfter activation, you can choose your form of participation in the summit.',
-        'main_menu': '📱 Main menu:\n\n1️⃣ Remind ID number\n2️⃣ Remind activation code\n3️⃣ Remind meeting date\n4️⃣ Reschedule meeting\n5️⃣ How to activate ID?\n6️⃣ Change language\n\n_Reply with number (1-6) or command (MENU, HELP)_',
+        'main_menu': '📱 Main menu:\n\n1️⃣ Remind ID number\n2️⃣ Remind activation code\n3️⃣ Remind meeting date\n4️⃣ Reschedule meeting\n5️⃣ How to activate ID?\n6️⃣ Change language\n7️⃣ Additional Materials\n\n_Reply with number (1-7) or command (MENU, HELP)_',
+        'torah_leadership_intro': '🌐 **Torah Leadership System in the Digital Age**\n\nDiscover the management model given by G-d through Yitro to Moshe Rabbeinu:',
+        'materials_menu': '📚 **Additional Materials:**\n\nReply with number:\n1️⃣ Video\n2️⃣ Torah Leadership System\n3️⃣ Back to menu',
         'your_id': '📜 Your ID: №{participant_id}',
         'your_code': '🔑 Your activation code: {activation_code}',
         'your_date': '📅 Your Zoom meeting date: {zoom_date}',
@@ -78,7 +89,9 @@ TEXTS = {
         'date_full': '❌ למרבה הצער, כל המקומות לתאריך זה תפוסים. אנא בחרו תאריך אחר.',
         'meeting_confirmed': '!מצוין! נשמח מאוד לראותכם בפגישה הראשונה שלנו',
         'id_and_code': '🎫 ה-ID שלך: №{participant_id}\n📲 :קוד הפעלה ייחודי {activation_code}\n\n⚠️ עליך להשתתף בפגישת Zoom כדי להפעיל את ה-ID שלך.\n.לאחר ההפעלה, תוכל לבחור את צורת ההשתתפות שלך בפסגה',
-        'main_menu': '📱 :תפריט ראשי\n\n1️⃣ הזכר מספר ID\n2️⃣ הזכר קוד הפעלה\n3️⃣ הזכר תאריך פגישה\n4️⃣ קבע מחדש פגישה\n5️⃣ ?כיצד להפעיל ID\n6️⃣ שנה שפה\n\n_(MENU ,HELP) ענה במספר (1-6) או פקודה_',
+        'main_menu': '📱 :תפריט ראשי\n\n1️⃣ הזכר מספר ID\n2️⃣ הזכר קוד הפעלה\n3️⃣ הזכר תאריך פגישה\n4️⃣ קבע מחדש פגישה\n5️⃣ ?כיצד להפעיל ID\n6️⃣ שנה שפה\n7️⃣ חומרים נוספים\n\n_(MENU ,HELP) ענה במספר (1-7) או פקודה_',
+        'torah_leadership_intro': '🌐 **מערכת המנהיגות של התורה בעידן הדיגיטלי**\n\nהכר את מודל הניהול שניתן על ידי הקב"ה דרך יתרו למשה רבינו:',
+        'materials_menu': '📚 **חומרים נוספים:**\n\n:ענה במספר\n1️⃣ וידאו\n2️⃣ מערכת המנהיגות של התורה\n3️⃣ חזור לתפריט',
         'your_id': '📜 ה-ID שלך: №{participant_id}',
         'your_code': '🔑 קוד ההפעלה שלך: {activation_code}',
         'your_date': '📅 תאריך פגישת Zoom שלך: {zoom_date}',
@@ -407,24 +420,41 @@ class EmailBot:
                 db.update_zoom_date(telegram_id, selected_date)
                 user = db.get_user(telegram_id)
                 
-                # Получаем ссылку на видео для языка пользователя
-                video_url = WELCOME_VIDEOS.get(user['language'], WELCOME_VIDEOS['ru'])
-                video_link_text = {
-                    'ru': f'\n\n🎬 Посмотрите приветственное видео:\n{video_url}\n',
-                    'en': f'\n\n🎬 Watch the welcome video:\n{video_url}\n',
-                    'he': f'\n\n🎬 צפה בסרטון ברוכים הבאים:\n{video_url}\n'
-                }
+                # 1. Отправляем подтверждение
+                self.send_email(from_email, "✅ Confirmed / Подтверждено", texts['meeting_confirmed'])
                 
-                # Отправляем подтверждение с видео, ID и кодом
-                confirmation = (texts['meeting_confirmed'] + 
-                               video_link_text[user['language']] + "\n" +
-                               texts['id_and_code'].replace('{participant_id}', str(user['participant_id'])).replace('{activation_code}', user['activation_code']))
+                # 2. Отправляем ID и код
+                id_and_code_text = texts['id_and_code'].replace('{participant_id}', str(user['participant_id'])).replace('{activation_code}', user['activation_code'])
                 subject_map = {
-                    'ru': '🎫 Регистрация подтверждена!',
-                    'en': '🎫 Registration confirmed!',
-                    'he': '🎫 !הרישום אושר'
+                    'ru': '🎫 Ваши данные регистрации',
+                    'en': '🎫 Your registration data',
+                    'he': '🎫 נתוני הרישום שלך'
                 }
-                self.send_email(from_email, subject_map[user['language']], confirmation)
+                self.send_email(from_email, subject_map[user['language']], id_and_code_text)
+                
+                # 3. Отправляем видео
+                video_url = WELCOME_VIDEOS.get(user['language'], WELCOME_VIDEOS['ru'])
+                video_subject_map = {
+                    'ru': '🎬 Приветственное видео',
+                    'en': '🎬 Welcome video',
+                    'he': '🎬 סרטון ברוכים הבאים'
+                }
+                video_text_map = {
+                    'ru': f'🎬 Посмотрите приветственное видео:\n\n{video_url}',
+                    'en': f'🎬 Watch the welcome video:\n\n{video_url}',
+                    'he': f'🎬 צפה בסרטון ברוכים הבאים:\n\n{video_url}'
+                }
+                self.send_email(from_email, video_subject_map[user['language']], video_text_map[user['language']])
+                
+                # 4. Отправляем ссылку на страницу "Система лидерства Торы"
+                torah_page_url = TORAH_LEADERSHIP_PAGES.get(user['language'], TORAH_LEADERSHIP_PAGES['ru'])
+                torah_intro = texts['torah_leadership_intro']
+                torah_subject_map = {
+                    'ru': '🌐 Система лидерства Торы',
+                    'en': '🌐 Torah Leadership System',
+                    'he': '🌐 מערכת המנהיגות של התורה'
+                }
+                self.send_email(from_email, torah_subject_map[user['language']], f"{torah_intro}\n\n{torah_page_url}")
                 
                 # Отправляем меню
                 menu_text = texts['main_menu']
@@ -434,8 +464,8 @@ class EmailBot:
                 logger.info(f"[EMAIL] Date selected: {selected_date}")
             return
         
-        # Обработка меню (пункты 1-6) - только для зарегистрированных
-        if user and state['step'] == 'registered' and command in ['1', '2', '3', '4', '5', '6']:
+        # Обработка меню (пункты 1-7) - только для зарегистрированных
+        if user and state['step'] == 'registered' and command in ['1', '2', '3', '4', '5', '6', '7']:
             texts = TEXTS[user['language']]
             menu_choice = int(command)
             
@@ -485,6 +515,66 @@ class EmailBot:
                 self.send_email(from_email, "🌍 Change language / Изменить язык", TEXTS['ru']['welcome'])
                 user_states[from_email] = {'step': 'choosing_language'}
                 logger.info(f"[EMAIL] Changing language")
+                return
+            
+            if menu_choice == 7:
+                # Дополнительные материалы
+                materials_subject_map = {
+                    'ru': '📚 Дополнительные материалы',
+                    'en': '📚 Additional Materials',
+                    'he': '📚 חומרים נוספים'
+                }
+                self.send_email(from_email, materials_subject_map[user['language']], texts['materials_menu'])
+                user_states[from_email] = {'step': 'materials_menu', 'language': user['language']}
+                logger.info(f"[EMAIL] Showing materials menu")
+                return
+        
+        # Обработка подменю "Дополнительные материалы"
+        if user and state.get('step') == 'materials_menu' and command in ['1', '2', '3']:
+            texts = TEXTS[user['language']]
+            materials_choice = int(command)
+            
+            if materials_choice == 1:
+                # Показать видео
+                video_url = WELCOME_VIDEOS.get(user['language'], WELCOME_VIDEOS['ru'])
+                video_subject_map = {
+                    'ru': '🎬 Приветственное видео',
+                    'en': '🎬 Welcome video',
+                    'he': '🎬 סרטון ברוכים הבאים'
+                }
+                video_text_map = {
+                    'ru': f'🎬 Посмотрите приветственное видео:\n\n{video_url}',
+                    'en': f'🎬 Watch the welcome video:\n\n{video_url}',
+                    'he': f'🎬 צפה בסרטון ברוכים הבאים:\n\n{video_url}'
+                }
+                self.send_email(from_email, video_subject_map[user['language']], video_text_map[user['language']])
+                # Возвращаем в главное меню
+                self.send_email(from_email, "📱 Menu / Меню", texts['main_menu'])
+                user_states[from_email] = {'step': 'registered', 'language': user['language']}
+                logger.info(f"[EMAIL] Sent video from materials menu")
+                return
+            
+            if materials_choice == 2:
+                # Показать страницу Торы
+                torah_page_url = TORAH_LEADERSHIP_PAGES.get(user['language'], TORAH_LEADERSHIP_PAGES['ru'])
+                torah_intro = texts['torah_leadership_intro']
+                torah_subject_map = {
+                    'ru': '🌐 Система лидерства Торы',
+                    'en': '🌐 Torah Leadership System',
+                    'he': '🌐 מערכת המנהיגות של התורה'
+                }
+                self.send_email(from_email, torah_subject_map[user['language']], f"{torah_intro}\n\n{torah_page_url}")
+                # Возвращаем в главное меню
+                self.send_email(from_email, "📱 Menu / Меню", texts['main_menu'])
+                user_states[from_email] = {'step': 'registered', 'language': user['language']}
+                logger.info(f"[EMAIL] Sent Torah page from materials menu")
+                return
+            
+            if materials_choice == 3:
+                # Вернуться в меню
+                self.send_email(from_email, "📱 Menu / Меню", texts['main_menu'])
+                user_states[from_email] = {'step': 'registered', 'language': user['language']}
+                logger.info(f"[EMAIL] Back to main menu from materials")
                 return
         
         # Команда MENU

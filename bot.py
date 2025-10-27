@@ -55,6 +55,13 @@ WELCOME_VIDEOS = {
     'he': 'https://www.dropbox.com/scl/fi/044kdmis462chkfy7kpcn/4.mp4?rlkey=wyap66tnu3j3i8yuvp8n7wtid&st=lrigyksz&dl=1',
     'en': 'https://www.dropbox.com/scl/fi/ma2ha4gu39l95o59519u8/.mp4?rlkey=594fye1i0p8rabbzmm6mcz5yt&st=dincgr4p&dl=1'
 }
+
+# Ссылки на страницы "Система лидерства Торы" для каждого языка
+TORAH_LEADERSHIP_PAGES = {
+    'ru': 'https://liderstvo-tory-diqyh3c.gamma.site/',
+    'en': 'https://torovoe-liderstvo-wbc7m7i.gamma.site/',
+    'he': 'https://tora-i-tsifrovaya-epokha-h98jv9r.gamma.site/'
+}
 MAX_PARTICIPANTS_PER_DATE = 290
 ADMIN_IDS = [386965305]  # Ваш ID
 
@@ -166,7 +173,7 @@ async def language_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     
     if existing_user:
         db.set_user_language(telegram_id, language)
-        await query.edit_message_text(get_text(language, 'language_changed'))
+    await query.edit_message_text(get_text(language, 'language_changed'))
         await show_main_menu_new_message(update, context, language)
         return SHOWING_MENU
     
@@ -190,12 +197,12 @@ async def language_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
             else:
                 button_text += f" ({count}/{MAX_PARTICIPANTS_PER_DATE})"
             keyboard.append([InlineKeyboardButton(button_text, callback_data=f'date_{date_str}')])
-        reply_markup = InlineKeyboardMarkup(keyboard)
+    reply_markup = InlineKeyboardMarkup(keyboard)
         await context.bot.send_message(
             chat_id=query.message.chat_id,
             text=get_text(language, 'choose_date'),
-            reply_markup=reply_markup
-        )
+        reply_markup=reply_markup
+    )
     
     return CHOOSING_DATE
 
@@ -219,7 +226,7 @@ async def show_date_selection(update: Update, context: ContextTypes.DEFAULT_TYPE
         
         if count >= MAX_PARTICIPANTS_PER_DATE:
             button_text += " ❌ FULL"
-        else:
+    else:
             button_text += f" ({count}/{MAX_PARTICIPANTS_PER_DATE})"
         
         keyboard.append([InlineKeyboardButton(button_text, callback_data=f'date_{date_str}')])
@@ -238,8 +245,8 @@ async def show_date_selection(update: Update, context: ContextTypes.DEFAULT_TYPE
         await context.bot.send_message(
             chat_id=chat_id,
             text=text,
-            reply_markup=reply_markup
-        )
+        reply_markup=reply_markup
+    )
         logger.info("Date selection sent via send_message")
 
 
@@ -287,22 +294,10 @@ async def date_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         # Обновляем дату
         db.update_zoom_date(telegram_id, date_str)
         
-        # Подтверждение
+        # 1. Подтверждение даты
         await query.edit_message_text(get_text(language, 'meeting_confirmed'))
         
-        # Отправляем видео с приветствием
-        video_url = WELCOME_VIDEOS.get(language, WELCOME_VIDEOS['ru'])
-        try:
-            await context.bot.send_video(
-                chat_id=update.effective_chat.id,
-                video=video_url,
-                caption=get_text(language, 'meeting_confirmed')
-            )
-            logger.info(f"Welcome video sent for language: {language}")
-        except Exception as e:
-            logger.error(f"Failed to send video: {e}")
-        
-        # Отправляем ID и код
+        # 2. Отправляем ID и код
         id_text = get_text(
             language,
             'id_and_code',
@@ -311,7 +306,27 @@ async def date_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
         )
         await context.bot.send_message(chat_id=update.effective_chat.id, text=id_text)
         
-        # Показываем меню
+        # 3. Отправляем видео
+        video_url = WELCOME_VIDEOS.get(language, WELCOME_VIDEOS['ru'])
+        try:
+            await context.bot.send_video(
+                chat_id=update.effective_chat.id,
+                video=video_url
+            )
+            logger.info(f"Welcome video sent for language: {language}")
+        except Exception as e:
+            logger.error(f"Failed to send video: {e}")
+        
+        # 4. Отправляем ссылку на страницу "Система лидерства Торы"
+        torah_page_url = TORAH_LEADERSHIP_PAGES.get(language, TORAH_LEADERSHIP_PAGES['ru'])
+        torah_intro = get_text(language, 'torah_leadership_intro')
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"{torah_intro}\n\n{torah_page_url}",
+            parse_mode='Markdown'
+        )
+        
+        # 5. Показываем меню
         await show_main_menu_new_message(update, context, language)
         
         return SHOWING_MENU
@@ -325,7 +340,8 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, lan
         [InlineKeyboardButton(get_text(language, 'btn_remind_date'), callback_data='menu_remind_date')],
         [InlineKeyboardButton(get_text(language, 'btn_reschedule'), callback_data='menu_reschedule')],
         [InlineKeyboardButton(get_text(language, 'btn_how_activate'), callback_data='menu_how_activate')],
-        [InlineKeyboardButton(get_text(language, 'btn_change_language'), callback_data='menu_change_language')]
+        [InlineKeyboardButton(get_text(language, 'btn_change_language'), callback_data='menu_change_language')],
+        [InlineKeyboardButton(get_text(language, 'btn_materials'), callback_data='menu_materials')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -337,9 +353,9 @@ async def show_main_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, lan
     else:
         await update.message.reply_text(
             get_text(language, 'main_menu'),
-            reply_markup=reply_markup
-        )
-
+        reply_markup=reply_markup
+    )
+    
 
 async def show_main_menu_new_message(update: Update, context: ContextTypes.DEFAULT_TYPE, language: str):
     """Показать главное меню (новое сообщение)"""
@@ -349,7 +365,8 @@ async def show_main_menu_new_message(update: Update, context: ContextTypes.DEFAU
         [InlineKeyboardButton(get_text(language, 'btn_remind_date'), callback_data='menu_remind_date')],
         [InlineKeyboardButton(get_text(language, 'btn_reschedule'), callback_data='menu_reschedule')],
         [InlineKeyboardButton(get_text(language, 'btn_how_activate'), callback_data='menu_how_activate')],
-        [InlineKeyboardButton(get_text(language, 'btn_change_language'), callback_data='menu_change_language')]
+        [InlineKeyboardButton(get_text(language, 'btn_change_language'), callback_data='menu_change_language')],
+        [InlineKeyboardButton(get_text(language, 'btn_materials'), callback_data='menu_materials')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -418,6 +435,36 @@ async def menu_handler(update: Update, context: ContextTypes.DEFAULT_TYPE) -> in
         text = get_text(language, 'zoom_instruction')
         keyboard = [[InlineKeyboardButton(get_text(language, 'btn_back_to_menu'), callback_data='menu_back')]]
         await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+        return SHOWING_MENU
+    
+    # Дополнительные материалы
+    elif action == 'materials':
+        text = get_text(language, 'materials_menu')
+        keyboard = [
+            [InlineKeyboardButton(get_text(language, 'btn_video'), callback_data='menu_show_video')],
+            [InlineKeyboardButton(get_text(language, 'btn_torah_page'), callback_data='menu_show_torah_page')],
+            [InlineKeyboardButton(get_text(language, 'btn_back_to_menu'), callback_data='menu_back')]
+        ]
+        await query.edit_message_text(text, reply_markup=InlineKeyboardMarkup(keyboard), parse_mode='Markdown')
+        return SHOWING_MENU
+    
+    # Показать видео
+    elif action == 'show_video':
+        video_url = WELCOME_VIDEOS.get(language, WELCOME_VIDEOS['ru'])
+        await context.bot.send_video(chat_id=update.effective_chat.id, video=video_url)
+        await show_main_menu_new_message(update, context, language)
+        return SHOWING_MENU
+    
+    # Показать страницу "Система лидерства Торы"
+    elif action == 'show_torah_page':
+        torah_page_url = TORAH_LEADERSHIP_PAGES.get(language, TORAH_LEADERSHIP_PAGES['ru'])
+        torah_intro = get_text(language, 'torah_leadership_intro')
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f"{torah_intro}\n\n{torah_page_url}",
+            parse_mode='Markdown'
+        )
+        await show_main_menu_new_message(update, context, language)
         return SHOWING_MENU
     
     # Изменить язык
