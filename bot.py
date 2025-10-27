@@ -173,7 +173,7 @@ async def language_chosen(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
     
     if existing_user:
         db.set_user_language(telegram_id, language)
-        await query.edit_message_text(get_text(language, 'language_changed'))
+    await query.edit_message_text(get_text(language, 'language_changed'))
         await show_main_menu_new_message(update, context, language)
         return SHOWING_MENU
     
